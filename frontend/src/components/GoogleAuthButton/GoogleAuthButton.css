@@ -1,0 +1,159 @@
+.google-auth-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.gis-btn-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.google-icon {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+
+/* Fast Student Authentication */
+.fast-auth-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.btn-fast-student {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: var(--radius-md, 8px);
+  color: #34d399;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-fast-student:hover {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: #10b981;
+  color: #6ee7b7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+}
+
+.fast-email-chip {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  background: rgba(16, 185, 129, 0.2);
+  border-radius: 4px;
+  color: #a7f3d0;
+}
+
+.fast-auth-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+.link-subtle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.73rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.15s ease;
+}
+
+.link-subtle-btn:hover {
+  color: var(--clr-indigo-400);
+}
+
+.help-btn {
+  color: var(--clr-amber-400, #fbbf24);
+}
+
+.help-btn:hover {
+  color: #fcd34d;
+}
+
+/* Custom Fast Login Form */
+.custom-fast-login-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md, 8px);
+}
+
+.custom-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.custom-field label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.fast-input {
+  width: 100%;
+  padding: 0.4rem 0.65rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 0.8rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.fast-input:focus {
+  border-color: var(--clr-indigo-500);
+}
+
+/* OAuth Explainer Card */
+.oauth-explainer-card {
+  padding: 0.85rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-md, 8px);
+  text-align: left;
+  line-height: 1.5;
+}
+
+.oauth-explainer-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #fbbf24;
+  font-size: 0.8rem;
+}
+
+.oauth-steps-box {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+

@@ -1,0 +1,119 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.quiz-modal-card {
+  width: 100%;
+  max-width: 580px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  box-shadow: var(--shadow-xl);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.quiz-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.875rem;
+}
+
+.quiz-question-title {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.quiz-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.quiz-opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  cursor: pointer !important;
+  text-align: left;
+  transition: all var(--transition-fast);
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  user-select: none;
+}
+
+.quiz-opt-btn:hover {
+  border-color: var(--clr-indigo-400);
+  background: rgba(99,102,241,0.08);
+  transform: translateX(4px);
+}
+
+.quiz-opt-btn.selected {
+  border-color: var(--clr-indigo-500);
+  background: rgba(99,102,241,0.15);
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.3);
+}
+
+.quiz-opt-dot {
+  pointer-events: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.quiz-opt-btn.selected .quiz-opt-dot {
+  background: var(--clr-indigo-500);
+  border-color: var(--clr-indigo-500);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+}
+
+.quiz-opt-btn > span {
+  pointer-events: none;
+}
+
+.quiz-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+}
+
+.result-icon-wrap {
+  display: inline-flex;
+  padding: 1rem;
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+}
+
+.result-icon-wrap.emerald { background: rgba(16,185,129,0.12); }
+.result-icon-wrap.amber { background: rgba(245,158,11,0.12); }
+
+.score-badge {
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+}

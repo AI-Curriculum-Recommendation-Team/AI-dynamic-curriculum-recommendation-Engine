@@ -1,0 +1,114 @@
+.roadmap-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.roadmap-item {
+  display: flex;
+  gap: 1.25rem;
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.roadmap-node-circle {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  background: var(--bg-card);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.roadmap-line {
+  position: absolute;
+  left: 21px;
+  top: 44px;
+  width: 2px;
+  bottom: 0;
+  background: var(--border-color);
+  z-index: 0;
+  transition: background var(--transition-base);
+}
+
+.roadmap-line.done {
+  background: linear-gradient(to bottom, var(--clr-emerald-500), var(--clr-indigo-400));
+}
+
+.roadmap-content {
+  flex: 1;
+  padding: 1.25rem;
+  margin-bottom: 0;
+}
+
+.roadmap-content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.roadmap-week-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: block;
+}
+
+.roadmap-topic {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 0.125rem;
+}
+
+.subtopic-chip {
+  padding: 0.2rem 0.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.roadmap-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  flex-wrap: wrap;
+}
+
+.roadmap-status-btn {
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  transition: all var(--transition-fast);
+  text-transform: capitalize;
+}
+
+.roadmap-status-btn:hover {
+  border-color: var(--clr-indigo-400);
+  color: var(--clr-indigo-400);
+}
+
+.roadmap-status-btn.active {
+  font-weight: 700;
+  background: rgba(99,102,241,0.05);
+}

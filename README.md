@@ -1085,48 +1085,59 @@ flowchart TD
 
 ### Prerequisites
 
+| Tool | Version | Purpose |
+|------|---------|---------|
+| **Python** | >= 3.11 | Backend runtime |
+| **Node.js** | >= 18.x | Frontend runtime |
+| **Git** | Latest | Version control |
+| **Docker** *(optional)* | Latest | Containerized setup |
+
+> **Database**: Uses **SQLite** by default (no external DB required). PostgreSQL can be configured via `DATABASE_URL`.
+
+---
+
+### Option A — Local Development (Recommended)
+
+#### 1. Clone the Repository
+
 ```bash
-Node.js >= 18.x
-Python >= 3.11
-PostgreSQL >= 15
-Git
-Docker (optional but recommended)
+git clone https://github.com/AI-Curriculum-Recommendation-Team/AI-dynamic-curriculum-recommendation-Engine.git
+cd AI-dynamic-curriculum-recommendation-Engine
 ```
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/<your-org>/ai-curriculum-engine.git
-cd ai-curriculum-engine
-```
-
-### 2. Backend Setup
+#### 2. Backend Setup
 
 ```bash
 cd backend
 
-# Create and activate virtual environment
+# Create virtual environment
 python -m venv venv
+
+# Activate virtual environment
 venv\Scripts\activate           # Windows
-# source venv/bin/activate      # Linux/Mac
+# source venv/bin/activate      # macOS / Linux
 
 # Install dependencies
 pip install -r requirements.txt
 
 # Configure environment variables
-copy .env.example .env
-# Edit .env with your DATABASE_URL, SECRET_KEY, and AI API keys
+copy .env.example .env          # Windows
+# cp .env.example .env          # macOS / Linux
 
-# Run database migrations
-alembic upgrade head
+# ✏️  Open .env and set your API keys:
+#    GEMINI_API_KEY=your-key-here
+#    SECRET_KEY=any-long-random-string
 
 # Start the backend server
 uvicorn app.main:app --reload --port 8000
 ```
 
-> API docs available at: `http://localhost:8000/docs`
+> ✅ **API docs** available at: [`http://localhost:8000/docs`](http://localhost:8000/docs)
+> ✅ **SQLite DB** (`curriculum.db`) is auto-created on first run — no migration needed.
 
-### 3. Frontend Setup
+#### 3. Frontend Setup
+
+Open a **new terminal**:
 
 ```bash
 cd frontend
@@ -1138,25 +1149,39 @@ npm install
 npm run dev
 ```
 
-> Frontend available at: `http://localhost:5173`
+> ✅ **Frontend** available at: [`http://localhost:5173`](http://localhost:5173)
 
-### 4. Docker Setup (Recommended)
+---
+
+### Option B — Docker Setup
 
 ```bash
-# Start all services (backend + frontend + database)
+# From project root
 docker-compose up --build
 ```
 
-### 5. Environment Variables
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:8000 |
+| API Docs | http://localhost:8000/docs |
 
-Copy `.env.example` to `.env` in the backend directory and fill in:
+---
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `SECRET_KEY` | JWT signing secret (use a long random string) |
-| `GEMINI_API_KEY` | Google Gemini API key |
-| `OPENAI_API_KEY` | OpenAI API key (optional fallback) |
+### Environment Variables Reference
+
+Copy `.env.example` to `.env` (in both root and `backend/` if needed) and configure:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | ✅ | `sqlite:///./curriculum.db` (default, no setup needed) |
+| `SECRET_KEY` | ✅ | Any long random string for JWT signing |
+| `ALGORITHM` | ✅ | `HS256` (default) |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | ✅ | `1440` (24 hours) |
+| `GEMINI_API_KEY` | ✅ | Get free key at [aistudio.google.com](https://aistudio.google.com/app/apikey) |
+| `GOOGLE_CLIENT_ID` | ⚠️ Optional | For Google OAuth login |
+| `GOOGLE_CLIENT_SECRET` | ⚠️ Optional | For Google OAuth login |
+| `OPENAI_API_KEY` | ⚠️ Optional | Fallback AI provider |
 
 ---
 
