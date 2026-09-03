@@ -88,6 +88,7 @@ class AssessmentQuestionOut(BaseModel):
     question_text: str
     options: List[str]
     skill_id: int
+    skill: Optional["SkillOut"] = None  # Include skill name for frontend display
     difficulty: str
 
     class Config:

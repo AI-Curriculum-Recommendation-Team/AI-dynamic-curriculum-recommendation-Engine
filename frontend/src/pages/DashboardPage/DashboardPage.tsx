@@ -73,7 +73,7 @@ export default function DashboardPage() {
       }
     }
     loadDashboard();
-  }, [setStudent]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (

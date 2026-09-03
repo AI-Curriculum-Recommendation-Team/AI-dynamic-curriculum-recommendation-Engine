@@ -19,6 +19,9 @@ import { useAuthStore, useThemeStore } from './store';
 // Protected Route wrapper
 function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
   const { isAuthenticated, user } = useAuthStore();
+  // Wait for Zustand persist to rehydrate from localStorage before redirecting
+  const hasHydrated = useAuthStore.persist?.hasHydrated?.() ?? true;
+  if (!hasHydrated) return null;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (adminOnly && user?.role !== 'admin') return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
@@ -27,6 +30,9 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
 // Public only route (redirect if logged in)
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
+  // Wait for Zustand persist to rehydrate from localStorage before redirecting
+  const hasHydrated = useAuthStore.persist?.hasHydrated?.() ?? true;
+  if (!hasHydrated) return null;
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }

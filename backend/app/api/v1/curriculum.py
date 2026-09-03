@@ -135,13 +135,16 @@ def get_topic_quiz(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """V2: Generate an adaptive quiz for a completed topic."""
+    """V2: Generate a real AI-powered adaptive quiz for a curriculum topic."""
     week = db.query(CurriculumWeek).filter(CurriculumWeek.id == week_id).first()
     if not week:
         raise HTTPException(status_code=404, detail="Week not found")
     quiz = generate_topic_quiz(week.topic, week.difficulty)
     if not quiz:
-        raise HTTPException(status_code=503, detail="Quiz generation failed. Try again later.")
+        raise HTTPException(
+            status_code=503,
+            detail="Quiz generation failed. The AI service may be temporarily unavailable. Please try again in a few seconds."
+        )
     return quiz
 
 

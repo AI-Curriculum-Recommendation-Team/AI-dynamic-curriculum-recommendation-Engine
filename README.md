@@ -941,76 +941,946 @@ DEBUG=true
 
 ## 18. Future Versions (V2 – V5)
 
-### Version 2 — Adaptive Learning
+---
+
+### 🔵 Version 2 — Adaptive Learning
+
+> **Goal:** Make the curriculum dynamic and self-improving based on student performance. The system stops being a one-time generator and becomes a continuous learning companion that evolves with the student.
+
+#### 18.1 Version 2 Feature Overview
+
+| Feature | Description |
+|---------|-------------|
+| 🧪 **AI Quiz Generation** | After each topic, the AI generates a custom 5–10 question quiz to evaluate understanding |
+| 🎚️ **Difficulty Adjustment** | Quiz difficulty adapts based on previous performance (easy → medium → hard) |
+| 🔄 **Dynamic Curriculum Updates** | If a student scores below 60%, the curriculum is automatically updated with remedial resources |
+| 📊 **Weekly AI Progress Reports** | Every week, the AI generates a personalized progress analysis report |
+| 🔔 **Smart Notifications** | Automated reminders for upcoming study sessions and pending topics |
+| 📈 **Performance Dashboard** | Visual charts showing skill improvement trends over time |
+| 🏆 **Achievement Badges** | Milestone-based rewards to keep students motivated |
+
+#### 18.2 Version 2 User Workflow
 
 ```mermaid
 flowchart TD
-    A[Student Studies Topic] --> B[Takes AI-Generated Quiz]
-    B --> C{Score Check}
-    C -->|High - above 80 percent| D[Advance to Next Topic]
-    C -->|Low - below 60 percent| E[AI Identifies Weakness]
-    E --> F[Add Extra Practice Resources]
-    F --> G[Curriculum Updated Dynamically]
-    G --> B
-    D --> H[Weekly AI Progress Report]
-    H --> I[Smart Notifications]
+    START([Student]) --> STUDY
+
+    STUDY["Study Topic\nComplete weekly curriculum topic"]
+    QUIZ["AI-Generated Quiz\nCustom questions per topic"]
+    SCORE{Score Check}
+    ADVANCE["Advance to Next Topic\nCurriculum progresses"]
+    WEAK["AI Identifies Weakness\nDetects knowledge gaps"]
+    REMEDIAL["Remedial Resources Added\nExtra practice & explanations"]
+    UPDATE["Curriculum Updated\nNew weekly plan generated"]
+    REPORT["Weekly AI Report\nProgress analysis & insights"]
+    NOTIFY["Smart Notifications\nReminders & nudges"]
+    DASHBOARD["Performance Dashboard\nSkill growth charts"]
+
+    START --> STUDY --> QUIZ --> SCORE
+    SCORE -->|"≥ 80% — Strong"| ADVANCE
+    SCORE -->|"60–79% — Average"| REPORT
+    SCORE -->|"< 60% — Weak"| WEAK
+    WEAK --> REMEDIAL --> UPDATE --> QUIZ
+    ADVANCE --> REPORT
+    REPORT --> NOTIFY --> DASHBOARD
+    DASHBOARD -->|"Next Topic"| STUDY
 ```
 
-**New Features:** AI-generated quizzes · Difficulty adjustment · Progress analysis · Dynamic curriculum updates · Weekly AI reports · Smart notifications
-
----
-
-### Version 3 — AI Tutor + RAG
-
-```mermaid
-flowchart LR
-    Q[Student Question] --> TUTOR[AI Chat Tutor]
-    TUTOR --> RETRIEVER[Retriever Module]
-    RETRIEVER --> VECTOR_DB["Vector Database\nChromaDB / FAISS"]
-    VECTOR_DB --> DOCS[Relevant Knowledge Chunks]
-    DOCS --> LLM[LLM Processing]
-    LLM --> ANS[Accurate Grounded Answer]
-```
-
-**New Features:** Chat tutor · PDF/document upload · Notes summarization · Q&A · Flashcards · RAG · Vector database
-
----
-
-### Version 4 — AI Career Coach
+#### 18.3 Version 2 Architecture Additions
 
 ```mermaid
 flowchart TD
-    RESUME[Resume Upload] --> AI_ANALYSIS[AI Analysis]
-    AI_ANALYSIS --> CURRENT[Current Skills Extracted]
-    AI_ANALYSIS --> MISSING[Missing Skills Identified]
-    MISSING --> CURRICULUM[Personalized Curriculum]
-    CURRICULUM --> INTERVIEW[Interview Preparation Path]
-    INTERVIEW --> MOCK[Mock Interview Simulations]
-    MOCK --> CHALLENGES[Coding Challenges]
+    subgraph V2_NEW["🆕 New in V2"]
+        QUIZ_SVC["Quiz Generation Service\nAI-generated per-topic quizzes"]
+        ADAPT_SVC["Adaptation Engine\nDifficulty & content adjustment"]
+        REPORT_SVC["Report Service\nWeekly AI progress reports"]
+        NOTIF_SVC["Notification Service\nEmail · In-app alerts"]
+        ANALYTICS["Analytics Engine\nPerformance trend tracking"]
+    end
+
+    subgraph V1_BASE["✅ V1 Base"]
+        FASTAPI["FastAPI Backend"]
+        AI_ENGINE["AI Engine (Gemini)"]
+        PG[("PostgreSQL")]
+    end
+
+    FASTAPI --> QUIZ_SVC & ADAPT_SVC & REPORT_SVC & NOTIF_SVC & ANALYTICS
+    QUIZ_SVC --> AI_ENGINE
+    ADAPT_SVC --> AI_ENGINE
+    REPORT_SVC --> AI_ENGINE
+    QUIZ_SVC & ADAPT_SVC & REPORT_SVC & ANALYTICS --> PG
 ```
 
-**New Features:** Resume analysis · Missing skill identification · Interview preparation · Mock interviews · Coding challenges · Company-specific learning paths
+#### 18.4 Version 2 New Database Entities
+
+| Entity | Description |
+|--------|-------------|
+| `topic_quizzes` | AI-generated quiz metadata per curriculum week |
+| `quiz_questions` | Individual questions per quiz (difficulty-tagged) |
+| `quiz_attempts` | Student quiz attempt history and scores |
+| `weekly_reports` | Stored AI-generated weekly progress reports |
+| `notifications` | Notification queue for email and in-app alerts |
+| `achievements` | Student milestone badges and rewards |
+
+```mermaid
+erDiagram
+    CURRICULUM_WEEKS ||--o{ TOPIC_QUIZZES : "has"
+    TOPIC_QUIZZES ||--o{ QUIZ_QUESTIONS : "contains"
+    STUDENTS ||--o{ QUIZ_ATTEMPTS : "takes"
+    QUIZ_ATTEMPTS }o--|| TOPIC_QUIZZES : "for"
+    STUDENTS ||--o{ WEEKLY_REPORTS : "receives"
+    STUDENTS ||--o{ NOTIFICATIONS : "gets"
+    STUDENTS ||--o{ ACHIEVEMENTS : "earns"
+
+    TOPIC_QUIZZES {
+        int id PK
+        int week_id FK
+        string difficulty
+        int question_count
+        datetime generated_at
+    }
+
+    QUIZ_QUESTIONS {
+        int id PK
+        int quiz_id FK
+        string question_text
+        json options
+        string correct_answer
+        string difficulty
+        int skill_id FK
+    }
+
+    QUIZ_ATTEMPTS {
+        int id PK
+        int student_id FK
+        int quiz_id FK
+        float score
+        json answers
+        datetime taken_at
+    }
+
+    WEEKLY_REPORTS {
+        int id PK
+        int student_id FK
+        int week_number
+        text report_text
+        json skill_progress
+        datetime generated_at
+    }
+
+    NOTIFICATIONS {
+        int id PK
+        int student_id FK
+        string type
+        string message
+        bool is_read
+        datetime created_at
+    }
+
+    ACHIEVEMENTS {
+        int id PK
+        int student_id FK
+        string badge_name
+        string description
+        datetime earned_at
+    }
+```
+
+#### 18.5 Version 2 New API Endpoints
+
+**Quiz Endpoints**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v2/quiz/generate/{week_id}` | AI generates a quiz for a curriculum week |
+| `GET` | `/api/v2/quiz/{quiz_id}` | Get quiz questions |
+| `POST` | `/api/v2/quiz/{quiz_id}/submit` | Submit quiz answers |
+| `GET` | `/api/v2/quiz/history` | Get student's quiz attempt history |
+
+**Adaptive Curriculum Endpoints**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v2/curriculum/adapt` | Trigger curriculum adaptation based on quiz score |
+| `GET` | `/api/v2/curriculum/updated` | Get latest adapted curriculum |
+
+**Reports & Notifications**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v2/reports/weekly` | Get AI-generated weekly progress report |
+| `GET` | `/api/v2/notifications` | Get all notifications for student |
+| `PUT` | `/api/v2/notifications/{id}/read` | Mark notification as read |
+| `GET` | `/api/v2/achievements` | Get student's earned badges |
+
+#### 18.6 Version 2 AI Capabilities
+
+| Capability | Description |
+|-----------|-------------|
+| **Quiz Question Generation** | LLM generates MCQ questions from topic content, calibrated by difficulty |
+| **Weakness Identification** | AI analyzes wrong answers to detect specific concept gaps |
+| **Curriculum Re-planning** | AI re-orders and augments the weekly plan based on performance |
+| **Progress Report Writing** | AI writes personalized weekly narrative progress reports |
+
+**Adaptive Quiz Prompt Example:**
+```
+Generate 5 multiple-choice questions on the topic "{topic}" at {difficulty} difficulty level.
+The student has scored {previous_score}% in their previous attempt.
+Focus on areas where the student showed weakness: {weak_concepts}.
+Return JSON format with question, options (A-D), correct_answer, and explanation.
+```
+
+#### 18.7 Version 2 Technology Stack Additions
+
+| Technology | Purpose |
+|-----------|---------|
+| **Celery** | Background task queue for report generation and notifications |
+| **Redis** | Task broker for Celery + caching quiz data |
+| **APScheduler** | Scheduled weekly report generation |
+| **SendGrid / SMTP** | Email notification delivery |
+| **Recharts / Chart.js** | Performance trend visualization on frontend |
 
 ---
 
-### Version 5 — Multi-Agent AI Platform
+### 🟣 Version 3 — AI Tutor + RAG
+
+> **Goal:** Transform the platform into an interactive learning assistant where students can ask questions, upload their study materials, and get grounded, accurate AI-powered answers — not hallucinations.
+
+#### 18.8 Version 3 Feature Overview
+
+| Feature | Description |
+|---------|-------------|
+| 💬 **AI Chat Tutor** | Conversational AI assistant embedded in each curriculum topic |
+| 📄 **PDF / Document Upload** | Students upload textbooks or notes; AI indexes and learns from them |
+| 🔍 **RAG Question Answering** | AI answers questions grounded in uploaded documents (no hallucination) |
+| 📝 **Notes Summarization** | AI summarizes uploaded PDFs into concise study notes |
+| 🃏 **Flashcard Generation** | AI auto-generates flashcards from uploaded material or curriculum topics |
+| 🗂️ **Knowledge Base** | Per-student vector database of indexed documents |
+| 📚 **Multi-Source Retrieval** | AI retrieves from uploaded docs + curated knowledge base simultaneously |
+
+#### 18.9 Version 3 User Workflow
 
 ```mermaid
 flowchart TD
-    ORCHESTRATOR["Orchestrator Agent"] --> SA & CA & RA & PMA & TA & CCA & IA
+    START([Student]) --> TOPIC
 
-    SA["Skill Assessment Agent\nEvaluates student abilities"]
-    CA["Curriculum Agent\nGenerates learning paths"]
-    RA["Resource Agent\nRecommends materials"]
-    PMA["Progress Monitor Agent\nTracks completion"]
-    TA["AI Tutor Agent\nAnswers questions"]
-    CCA["Career Coach Agent\nCareer guidance"]
-    IA["Interview Agent\nMock interviews"]
+    TOPIC["Studying a Curriculum Topic"]
+    UPLOAD["Upload Study Material\nPDF · DOCX · Text"]
+    INDEX["Document Indexing\nChunk → Embed → Store in Vector DB"]
+    ASK["Ask AI Tutor a Question\nChat interface"]
+    RETRIEVE["Retrieval Module\nSemantic search across documents"]
+    VECTOR["Vector Database\nChromaDB / FAISS"]
+    CONTEXT["Relevant Chunks Retrieved\nTop-K most similar passages"]
+    LLM["LLM Processing\nGemini + Retrieved Context"]
+    ANSWER["Grounded AI Answer\nWith source citations"]
+    FLASH["Auto-generate Flashcards\nFrom topic or uploaded docs"]
+    SUMMARY["AI Summarization\nCompressed study notes"]
 
-    SA & CA & RA & PMA & TA & CCA & IA --> STUDENT[Student Dashboard]
+    START --> TOPIC
+    TOPIC --> ASK
+    TOPIC --> UPLOAD --> INDEX --> VECTOR
+    ASK --> RETRIEVE --> VECTOR --> CONTEXT --> LLM --> ANSWER
+    ANSWER -->|"Continue learning"| TOPIC
+    TOPIC --> FLASH
+    UPLOAD --> SUMMARY
 ```
 
-**New Features:** Multi-agent orchestration · Voice learning assistant · Learning analytics · Placement readiness score · Faculty dashboard
+#### 18.10 Version 3 Architecture Additions
+
+```mermaid
+flowchart TD
+    subgraph V3_NEW["🆕 New in V3"]
+        TUTOR_SVC["AI Tutor Service\nChat session management"]
+        RAG_ENGINE["RAG Engine\nRetrieval-Augmented Generation"]
+        EMBED_SVC["Embedding Service\nText → Vector conversion"]
+        VECTOR_DB["Vector Database\nChromaDB / FAISS"]
+        DOC_PROC["Document Processor\nPDF → text chunks"]
+        FLASH_SVC["Flashcard Service\nAI flashcard generation"]
+        SUMM_SVC["Summarization Service\nNotes → compact summaries"]
+    end
+
+    subgraph V2_BASE["✅ V1+V2 Base"]
+        FASTAPI["FastAPI Backend"]
+        AI_ENGINE["AI Engine (Gemini)"]
+        PG[("PostgreSQL")]
+        REDIS[("Redis")]
+    end
+
+    FASTAPI --> TUTOR_SVC & DOC_PROC & FLASH_SVC & SUMM_SVC
+    DOC_PROC --> EMBED_SVC --> VECTOR_DB
+    TUTOR_SVC --> RAG_ENGINE
+    RAG_ENGINE --> EMBED_SVC & VECTOR_DB
+    RAG_ENGINE --> AI_ENGINE
+    TUTOR_SVC & FLASH_SVC & SUMM_SVC --> PG
+```
+
+#### 18.11 Version 3 New Database Entities
+
+| Entity | Description |
+|--------|-------------|
+| `documents` | Uploaded PDF/text files metadata |
+| `document_chunks` | Text segments extracted from documents |
+| `chat_sessions` | AI tutor conversation sessions per student |
+| `chat_messages` | Individual messages in a chat session |
+| `flashcards` | AI-generated or student-created flashcard sets |
+| `flashcard_items` | Individual flashcard question-answer pairs |
+| `student_notes` | AI-summarized notes stored per topic |
+
+```mermaid
+erDiagram
+    STUDENTS ||--o{ DOCUMENTS : "uploads"
+    DOCUMENTS ||--o{ DOCUMENT_CHUNKS : "split into"
+    STUDENTS ||--o{ CHAT_SESSIONS : "has"
+    CHAT_SESSIONS ||--o{ CHAT_MESSAGES : "contains"
+    STUDENTS ||--o{ FLASHCARDS : "owns"
+    FLASHCARDS ||--o{ FLASHCARD_ITEMS : "has"
+    STUDENTS ||--o{ STUDENT_NOTES : "stores"
+
+    DOCUMENTS {
+        int id PK
+        int student_id FK
+        string filename
+        string file_path
+        string mime_type
+        datetime uploaded_at
+        bool is_indexed
+    }
+
+    DOCUMENT_CHUNKS {
+        int id PK
+        int document_id FK
+        text content
+        string vector_id
+        int chunk_index
+    }
+
+    CHAT_SESSIONS {
+        int id PK
+        int student_id FK
+        int curriculum_week_id FK
+        string title
+        datetime started_at
+    }
+
+    CHAT_MESSAGES {
+        int id PK
+        int session_id FK
+        string role
+        text content
+        json source_chunks
+        datetime created_at
+    }
+
+    FLASHCARDS {
+        int id PK
+        int student_id FK
+        string title
+        string source_type
+        int source_id FK
+        datetime created_at
+    }
+
+    FLASHCARD_ITEMS {
+        int id PK
+        int flashcard_id FK
+        text front_text
+        text back_text
+        string difficulty
+    }
+
+    STUDENT_NOTES {
+        int id PK
+        int student_id FK
+        int curriculum_week_id FK
+        text summary_text
+        datetime generated_at
+    }
+```
+
+#### 18.12 Version 3 New API Endpoints
+
+**Document Management**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v3/documents/upload` | Upload a PDF or text document |
+| `GET` | `/api/v3/documents` | List all uploaded documents |
+| `DELETE` | `/api/v3/documents/{id}` | Delete a document and its index |
+| `POST` | `/api/v3/documents/{id}/index` | Trigger document indexing into vector DB |
+
+**AI Tutor / Chat**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v3/tutor/sessions` | Start a new AI tutor chat session |
+| `POST` | `/api/v3/tutor/sessions/{id}/message` | Send a message and get AI response |
+| `GET` | `/api/v3/tutor/sessions/{id}/history` | Get full chat history |
+| `GET` | `/api/v3/tutor/sessions` | List all chat sessions |
+
+**Flashcards & Notes**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v3/flashcards/generate/{week_id}` | AI generates flashcards for a topic |
+| `GET` | `/api/v3/flashcards` | Get student's flashcard sets |
+| `POST` | `/api/v3/notes/summarize/{document_id}` | Summarize an uploaded document |
+| `GET` | `/api/v3/notes` | Get all saved AI-generated notes |
+
+#### 18.13 Version 3 AI Capabilities
+
+| Capability | Description |
+|-----------|-------------|
+| **Text Embedding** | Convert document chunks and questions into semantic vectors |
+| **Semantic Retrieval** | Find top-K most relevant document passages for a question |
+| **RAG Answer Generation** | Generate answers grounded in retrieved context, with citations |
+| **Summarization** | Condense long documents into structured study notes |
+| **Flashcard Generation** | Extract key concepts and create Q&A pairs from content |
+| **Hallucination Prevention** | Answers are always grounded in retrieved facts, never fabricated |
+
+**RAG Prompt Pattern:**
+```
+You are an AI study tutor for the topic "{topic}".
+
+Use ONLY the following retrieved context to answer the student's question.
+If the answer is not in the context, say "I don't have enough information on this."
+
+Context:
+{retrieved_chunks}
+
+Student Question: {question}
+
+Provide a clear, concise answer with the relevant source section.
+```
+
+#### 18.14 Version 3 Technology Stack Additions
+
+| Technology | Purpose |
+|-----------|---------|
+| **LangChain** | LLM application framework for RAG pipeline |
+| **ChromaDB** | Local vector database for document embeddings |
+| **FAISS** | Alternative high-performance vector index |
+| **sentence-transformers** | Text embedding model for semantic search |
+| **PyMuPDF / pdfplumber** | PDF text extraction and parsing |
+| **FastAPI WebSocket** | Real-time streaming chat responses |
+
+---
+
+### 🟠 Version 4 — AI Career Coach
+
+> **Goal:** Take personalized learning beyond curriculum into career readiness — resume analysis, interview simulation, coding practice, and company-specific preparation so students are truly job-ready.
+
+#### 18.15 Version 4 Feature Overview
+
+| Feature | Description |
+|---------|-------------|
+| 📄 **Resume Upload & Analysis** | AI parses resume to extract skills, experience, and education |
+| 🎯 **Skill Gap from Resume** | Compares resume skills against job role requirements |
+| 🗺️ **Career-Specific Curriculum** | Learning path generated based on resume gaps + target role |
+| 🏢 **Company-Specific Paths** | Tailored preparation for FAANG, startups, or specific domains |
+| 🎤 **AI Interview Preparation** | HR, technical, and behavioral interview question generation |
+| 🤖 **Mock Interview Simulator** | Conversational AI that conducts and evaluates mock interviews |
+| 💻 **Coding Challenges** | LeetCode-style AI-generated coding problems with hints |
+| 📊 **Career Readiness Score** | Numerical score indicating job-readiness level |
+| 🏆 **Job Role Matching** | Matches student profile to suitable job roles and companies |
+
+#### 18.16 Version 4 User Workflow
+
+```mermaid
+flowchart TD
+    START([Student]) --> RESUME
+
+    RESUME["Upload Resume\nPDF format"]
+    PARSE["AI Resume Parser\nExtract skills · experience · education"]
+    COMPARE["Skill Gap Analysis\nResume vs. Target Job Requirements"]
+    CAREER_CURR["Career-Specific Curriculum\nGenerated from gap analysis"]
+    COMPANY["Select Target Company\nFAANG · Startup · Domain"]
+    COMPANY_PATH["Company-Specific Path\nCustomized prep plan"]
+    INTERVIEW_PREP["Interview Preparation\nHR · Technical · Behavioral"]
+    MOCK["Mock Interview Session\nAI conducts full interview"]
+    EVALUATE["Interview Evaluation\nAI scores & gives feedback"]
+    CODE["Coding Challenges\nAI-generated problems"]
+    CODE_REVIEW["Code Review\nAI evaluates solution"]
+    SCORE["Career Readiness Score\nJob-readiness meter"]
+
+    START --> RESUME --> PARSE --> COMPARE --> CAREER_CURR
+    CAREER_CURR --> COMPANY --> COMPANY_PATH
+    COMPANY_PATH --> INTERVIEW_PREP --> MOCK --> EVALUATE
+    COMPANY_PATH --> CODE --> CODE_REVIEW
+    EVALUATE & CODE_REVIEW --> SCORE
+    SCORE -->|"Improve weak areas"| CAREER_CURR
+```
+
+#### 18.17 Version 4 Architecture Additions
+
+```mermaid
+flowchart TD
+    subgraph V4_NEW["🆕 New in V4"]
+        RESUME_SVC["Resume Parser Service\nAI skill extraction"]
+        CAREER_COACH["Career Coach Engine\nJob role analysis"]
+        INTERVIEW_SVC["Interview Service\nQ&A generation + evaluation"]
+        MOCK_SVC["Mock Interview Service\nConversational simulator"]
+        CODING_SVC["Coding Challenge Service\nProblem generation + review"]
+        READINESS_SVC["Readiness Score Engine\nCareer readiness calculator"]
+        COMPANY_DB["Company Profiles DB\nRole requirements & interview styles"]
+    end
+
+    subgraph BASE["✅ V1–V3 Base"]
+        FASTAPI["FastAPI Backend"]
+        AI_ENGINE["AI Engine (Gemini)"]
+        RAG_ENGINE["RAG Engine"]
+        PG[("PostgreSQL")]
+    end
+
+    FASTAPI --> RESUME_SVC & CAREER_COACH & INTERVIEW_SVC & MOCK_SVC & CODING_SVC & READINESS_SVC
+    RESUME_SVC & CAREER_COACH & INTERVIEW_SVC & CODING_SVC --> AI_ENGINE
+    MOCK_SVC --> RAG_ENGINE
+    COMPANY_DB --> CAREER_COACH
+    RESUME_SVC & CAREER_COACH & INTERVIEW_SVC & CODING_SVC & READINESS_SVC --> PG
+```
+
+#### 18.18 Version 4 New Database Entities
+
+| Entity | Description |
+|--------|-------------|
+| `resumes` | Uploaded resume files and parsed data |
+| `resume_skills` | Skills extracted from resume by AI |
+| `company_profiles` | Company data (roles, required skills, interview style) |
+| `interview_sessions` | Mock interview session metadata |
+| `interview_questions` | Generated interview Q&A pairs |
+| `interview_responses` | Student's recorded answers and AI scores |
+| `coding_challenges` | Generated coding problems with test cases |
+| `coding_submissions` | Student code submissions and review results |
+| `career_readiness` | Career readiness score and breakdown |
+
+```mermaid
+erDiagram
+    STUDENTS ||--o{ RESUMES : "uploads"
+    RESUMES ||--o{ RESUME_SKILLS : "extracts"
+    STUDENTS ||--o{ INTERVIEW_SESSIONS : "takes"
+    INTERVIEW_SESSIONS ||--o{ INTERVIEW_QUESTIONS : "has"
+    INTERVIEW_SESSIONS ||--o{ INTERVIEW_RESPONSES : "captures"
+    STUDENTS ||--o{ CODING_CHALLENGES : "attempts"
+    CODING_CHALLENGES ||--o{ CODING_SUBMISSIONS : "receives"
+    STUDENTS ||--|| CAREER_READINESS : "has"
+    COMPANY_PROFILES ||--o{ INTERVIEW_SESSIONS : "targets"
+
+    RESUMES {
+        int id PK
+        int student_id FK
+        string file_path
+        json parsed_data
+        datetime uploaded_at
+    }
+
+    COMPANY_PROFILES {
+        int id PK
+        string company_name
+        string role
+        json required_skills
+        string interview_style
+        string difficulty_level
+    }
+
+    INTERVIEW_SESSIONS {
+        int id PK
+        int student_id FK
+        int company_id FK
+        string interview_type
+        float overall_score
+        datetime started_at
+        datetime completed_at
+    }
+
+    INTERVIEW_QUESTIONS {
+        int id PK
+        int session_id FK
+        string question_type
+        text question_text
+        text ideal_answer
+        string difficulty
+    }
+
+    INTERVIEW_RESPONSES {
+        int id PK
+        int session_id FK
+        int question_id FK
+        text student_answer
+        float ai_score
+        text ai_feedback
+    }
+
+    CODING_CHALLENGES {
+        int id PK
+        int student_id FK
+        string title
+        text problem_statement
+        json test_cases
+        string difficulty
+        string topic
+        datetime generated_at
+    }
+
+    CODING_SUBMISSIONS {
+        int id PK
+        int challenge_id FK
+        int student_id FK
+        text code
+        string language
+        bool passed
+        text ai_review
+        datetime submitted_at
+    }
+
+    CAREER_READINESS {
+        int id PK
+        int student_id FK
+        float overall_score
+        json skill_scores
+        float interview_score
+        float coding_score
+        datetime last_updated
+    }
+```
+
+#### 18.19 Version 4 New API Endpoints
+
+**Resume & Career Endpoints**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v4/resume/upload` | Upload and parse resume |
+| `GET` | `/api/v4/resume/skills` | Get AI-extracted skills from resume |
+| `GET` | `/api/v4/career/companies` | List company profiles |
+| `POST` | `/api/v4/career/match` | Get best-matched roles for student profile |
+| `GET` | `/api/v4/career/readiness` | Get career readiness score |
+
+**Interview Endpoints**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v4/interview/sessions` | Start a mock interview session |
+| `GET` | `/api/v4/interview/sessions/{id}/question` | Get next interview question |
+| `POST` | `/api/v4/interview/sessions/{id}/answer` | Submit answer and get AI evaluation |
+| `GET` | `/api/v4/interview/sessions/{id}/report` | Get interview performance report |
+
+**Coding Endpoints**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v4/coding/generate` | Generate a coding challenge |
+| `GET` | `/api/v4/coding/challenges` | Get student's challenge list |
+| `POST` | `/api/v4/coding/{id}/submit` | Submit code solution |
+| `GET` | `/api/v4/coding/{id}/review` | Get AI code review |
+| `GET` | `/api/v4/coding/{id}/hints` | Get progressive AI hints |
+
+#### 18.20 Version 4 AI Capabilities
+
+| Capability | Description |
+|-----------|-------------|
+| **Resume Parsing** | AI extracts structured skill data from unstructured resume text |
+| **Role Gap Analysis** | AI compares resume skills against job role requirements |
+| **Interview Q Generation** | AI generates HR, technical, and behavioral questions per company |
+| **Answer Evaluation** | AI scores student's interview answer against ideal response |
+| **Mock Interviewer** | AI role-plays as interviewer, adapts follow-up questions contextually |
+| **Code Review** | AI analyzes code for correctness, efficiency, and best practices |
+| **Hint System** | AI provides Socratic progressive hints without revealing the solution |
+| **Readiness Scoring** | AI aggregates performance across all domains into a readiness score |
+
+**Interview Evaluation Prompt:**
+```
+You are an expert interviewer evaluating a candidate's response.
+
+Question: {question}
+Question Type: {type} (HR / Technical / Behavioral)
+Target Company: {company}
+
+Candidate's Answer: {student_answer}
+
+Ideal Answer Criteria: {ideal_answer}
+
+Score the response from 0–100 and provide:
+1. Score
+2. What was done well
+3. What could be improved
+4. A model answer for reference
+Return as JSON.
+```
+
+#### 18.21 Version 4 Technology Stack Additions
+
+| Technology | Purpose |
+|-----------|---------|
+| **Judge0 API** | Sandboxed code execution and testing |
+| **python-docx / pdfminer** | Resume parsing from PDF/DOCX |
+| **spaCy / NER** | Named entity recognition for skill extraction |
+| **WebSockets** | Real-time conversational mock interview |
+| **Monaco Editor** | VS Code-like in-browser code editor |
+
+---
+
+### 🔴 Version 5 — Multi-Agent AI Platform
+
+> **Goal:** Evolve the entire platform into a fully autonomous multi-agent AI ecosystem where specialized agents collaborate, a voice assistant enables hands-free learning, and a faculty dashboard enables institutional oversight and placement tracking.
+
+#### 18.22 Version 5 Feature Overview
+
+| Feature | Description |
+|---------|-------------|
+| 🤖 **Multi-Agent Orchestration** | Central orchestrator coordinates 7 specialized AI agents |
+| 🎙️ **Voice Learning Assistant** | Hands-free AI tutor accessible via speech input/output |
+| 📊 **Learning Analytics Dashboard** | Institution-wide and individual performance analytics |
+| 🏅 **Placement Readiness Score** | Composite score combining curriculum, interviews, and coding |
+| 👩‍🏫 **Faculty Dashboard** | Educators can monitor cohort progress and set learning targets |
+| 🔗 **Agent Communication** | Agents share context and hand off tasks intelligently via LangGraph |
+| 📱 **Mobile-Ready PWA** | Progressive Web App for learning on any device |
+| 🌐 **LMS Integration** | Connects with institutional LMS (Moodle, Canvas) via APIs |
+
+#### 18.23 Version 5 Agent Roles
+
+| Agent | Responsibility |
+|-------|---------------|
+| 🧠 **Orchestrator Agent** | Receives student goals, delegates to the right specialist agents |
+| 🎯 **Skill Assessment Agent** | Evaluates student abilities and gaps dynamically |
+| 📚 **Curriculum Agent** | Generates and continuously updates personalized learning paths |
+| 🔍 **Resource Agent** | Searches and recommends the best learning materials in real time |
+| 📈 **Progress Monitor Agent** | Tracks completion, detects stagnation, and triggers interventions |
+| 💬 **AI Tutor Agent** | Answers domain questions using RAG and document knowledge |
+| 💼 **Career Coach Agent** | Manages resume analysis, company targeting, and career guidance |
+| 🎤 **Interview Agent** | Conducts mock interviews and evaluates performance end-to-end |
+
+#### 18.24 Version 5 Multi-Agent Workflow
+
+```mermaid
+flowchart TD
+    STUDENT([Student]) --> ORCHESTRATOR
+
+    ORCHESTRATOR["🧠 Orchestrator Agent\n(LangGraph Coordinator)"]
+
+    subgraph AGENTS["Specialist Agents"]
+        SA["🎯 Skill Assessment Agent"]
+        CA["📚 Curriculum Agent"]
+        RA["🔍 Resource Agent"]
+        PMA["📈 Progress Monitor Agent"]
+        TA["💬 AI Tutor Agent (RAG)"]
+        CCA["💼 Career Coach Agent"]
+        IA["🎤 Interview Agent"]
+    end
+
+    subgraph DATA["Shared Data Layer"]
+        PG[("PostgreSQL\nStructured Data")]
+        VECTOR[("Vector DB\nChromaDB")]
+        REDIS[("Redis\nAgent State Cache")]
+    end
+
+    ORCHESTRATOR --> SA & CA & RA & PMA & TA & CCA & IA
+    SA <-->|"Skill data"| CA
+    CA <-->|"Topics"| RA
+    PMA <-->|"Progress"| CA
+    TA <-->|"Tutor handoff"| CCA
+    CCA <-->|"Career context"| IA
+
+    AGENTS --> DATA
+
+    PMA --> VOICE["🎙️ Voice Assistant"]
+    ORCHESTRATOR --> FACULTY["👩‍🏫 Faculty Dashboard"]
+    ORCHESTRATOR --> ANALYTICS["📊 Analytics Engine"]
+    ANALYTICS --> PLACEMENT["🏅 Placement Readiness Score"]
+```
+
+#### 18.25 Version 5 Architecture Additions
+
+```mermaid
+flowchart TD
+    subgraph V5_NEW["🆕 New in V5"]
+        LANGGRAPH["LangGraph\nAgent orchestration framework"]
+        VOICE_SVC["Voice Service\nSTT · TTS pipeline"]
+        ANALYTICS_SVC["Analytics Engine\nCohort & individual insights"]
+        FACULTY_SVC["Faculty Service\nDashboard & goal setting"]
+        LMS_SVC["LMS Integration\nMoodle / Canvas connector"]
+        PLACEMENT_SVC["Placement Score Engine\nComposite readiness calculator"]
+        AGENT_STATE["Agent State Manager\nCross-agent context sharing (Redis)"]
+    end
+
+    subgraph BASE["✅ V1–V4 Base"]
+        FASTAPI["FastAPI Backend"]
+        ALL_AGENTS["All V1–V4 Services"]
+        PG[("PostgreSQL")]
+        VECTOR[("Vector DB")]
+    end
+
+    LANGGRAPH --> ALL_AGENTS
+    LANGGRAPH --> AGENT_STATE
+    VOICE_SVC --> ALL_AGENTS
+    FACULTY_SVC & ANALYTICS_SVC & PLACEMENT_SVC --> PG
+    LANGGRAPH --> FASTAPI
+    LMS_SVC --> FASTAPI
+```
+
+#### 18.26 Version 5 New Database Entities
+
+| Entity | Description |
+|--------|-------------|
+| `agent_sessions` | Multi-agent conversation state and handoff logs |
+| `agent_logs` | Per-agent action and decision audit trail |
+| `faculty_profiles` | Faculty/educator accounts with institution association |
+| `cohorts` | Groups of students managed by a faculty member |
+| `cohort_members` | Student ↔ cohort mapping |
+| `analytics_snapshots` | Periodic snapshots of platform-wide learning metrics |
+| `placement_scores` | Composite placement readiness breakdown per student |
+| `lms_integrations` | LMS connection configurations per institution |
+
+```mermaid
+erDiagram
+    FACULTY_PROFILES ||--o{ COHORTS : "manages"
+    COHORTS ||--o{ COHORT_MEMBERS : "has"
+    STUDENTS ||--o{ COHORT_MEMBERS : "belongs to"
+    STUDENTS ||--|| PLACEMENT_SCORES : "has"
+    STUDENTS ||--o{ AGENT_SESSIONS : "interacts via"
+    AGENT_SESSIONS ||--o{ AGENT_LOGS : "records"
+
+    FACULTY_PROFILES {
+        int id PK
+        string full_name
+        string email UK
+        string institution
+        string department
+        datetime created_at
+    }
+
+    COHORTS {
+        int id PK
+        int faculty_id FK
+        string name
+        string target_career
+        datetime start_date
+        datetime end_date
+    }
+
+    COHORT_MEMBERS {
+        int id PK
+        int cohort_id FK
+        int student_id FK
+        datetime joined_at
+    }
+
+    AGENT_SESSIONS {
+        int id PK
+        int student_id FK
+        string session_id
+        json agent_chain
+        json shared_context
+        datetime started_at
+        datetime ended_at
+    }
+
+    AGENT_LOGS {
+        int id PK
+        int session_id FK
+        string agent_name
+        string action
+        json input_data
+        json output_data
+        datetime timestamp
+    }
+
+    PLACEMENT_SCORES {
+        int id PK
+        int student_id FK
+        float curriculum_score
+        float quiz_score
+        float interview_score
+        float coding_score
+        float overall_score
+        string readiness_level
+        datetime calculated_at
+    }
+
+    ANALYTICS_SNAPSHOTS {
+        int id PK
+        string scope
+        int entity_id FK
+        json metrics
+        datetime snapshot_at
+    }
+```
+
+#### 18.27 Version 5 New API Endpoints
+
+**Multi-Agent Orchestration**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v5/agent/start` | Start a multi-agent session for a student goal |
+| `POST` | `/api/v5/agent/message` | Send a message to the orchestrator |
+| `GET` | `/api/v5/agent/sessions/{id}` | Get agent session state |
+| `GET` | `/api/v5/agent/sessions/{id}/logs` | Get full agent decision logs |
+
+**Voice Assistant**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v5/voice/transcribe` | Speech-to-text: convert audio to student query |
+| `POST` | `/api/v5/voice/respond` | Text-to-speech: convert AI answer to audio |
+| `POST` | `/api/v5/voice/session` | Start a hands-free voice tutor session |
+
+**Faculty Dashboard**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v5/faculty/cohorts` | Create a student cohort |
+| `GET` | `/api/v5/faculty/cohorts/{id}/progress` | Get cohort-wide progress |
+| `GET` | `/api/v5/faculty/analytics` | Get institution-level analytics |
+| `GET` | `/api/v5/faculty/placements` | Get cohort placement readiness summary |
+
+**Placement & Analytics**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v5/placement/score` | Get student's composite placement readiness score |
+| `GET` | `/api/v5/analytics/me` | Get individual learning analytics |
+| `GET` | `/api/v5/analytics/cohort/{id}` | Get cohort-level learning analytics |
+
+#### 18.28 Version 5 AI Capabilities
+
+| Capability | Description |
+|-----------|-------------|
+| **Orchestrated Multi-Agent** | LangGraph routes student requests to the optimal specialist agent |
+| **Cross-Agent Context** | Agents share session state so context is never lost between handoffs |
+| **Voice Interface (STT/TTS)** | Students speak questions; AI responds verbally using TTS |
+| **Autonomous Planning** | Orchestrator plans multi-step learning workflows without student input |
+| **Cohort Trend Analysis** | AI identifies struggling students and suggests faculty interventions |
+| **Placement Prediction** | AI predicts job-readiness based on all platform signals |
+| **Proactive Nudging** | Agents autonomously send motivational nudges when stagnation is detected |
+
+**Multi-Agent Orchestrator Prompt Pattern:**
+```
+You are the Orchestrator Agent for an AI learning platform.
+
+Student Goal: {goal}
+Student Context:
+  - Skills: {skills}
+  - Current Curriculum Week: {week}
+  - Recent Performance: {performance}
+  - Career Target: {career}
+
+Available Agents: [SkillAssessment, Curriculum, Resource, ProgressMonitor, AITutor, CareerCoach, Interview]
+
+Analyze the student's current state and determine which agent(s) should act next.
+Return a JSON plan with: selected_agent, task_description, input_data, expected_output.
+```
+
+#### 18.29 Version 5 Technology Stack Additions
+
+| Technology | Purpose |
+|-----------|---------|
+| **LangGraph** | Multi-agent workflow orchestration with stateful graphs |
+| **LangChain Agents** | Tool-calling agents for each specialist domain |
+| **OpenAI Whisper / Google STT** | Speech-to-text for voice assistant |
+| **Google TTS / ElevenLabs** | Text-to-speech for voice responses |
+| **Grafana + Prometheus** | Real-time platform analytics and monitoring |
+| **Metabase** | Faculty-facing analytics dashboards |
+| **moodle-rest-client** | LMS integration with Moodle |
+| **PWA (Vite PWA Plugin)** | Progressive Web App for mobile learning |
 
 ---
 

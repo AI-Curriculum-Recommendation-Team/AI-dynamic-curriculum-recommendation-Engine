@@ -13,20 +13,8 @@ from app.schemas.student import AssessmentOut, AssessmentSubmit, AssessmentResul
 router = APIRouter(prefix="/assessments", tags=["Assessments"])
 
 
-@router.get("/{career_id}", response_model=AssessmentOut)
-def get_assessment(
-    career_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Get the assessment for a career goal."""
-    assessment = db.query(Assessment).filter(
-        Assessment.career_goal_id == career_id
-    ).first()
-    if not assessment:
-        raise HTTPException(status_code=404, detail="Assessment not found for this career goal")
-    return assessment
-
+# NOTE: Specific routes MUST be defined before wildcard /{career_id} route
+# to prevent FastAPI from matching /submit, /results/... as career_id values.
 
 @router.post("/submit", response_model=AssessmentResultOut)
 def submit_assessment(
@@ -101,22 +89,6 @@ def submit_assessment(
     return result
 
 
-@router.get("/results/{result_id}", response_model=AssessmentResultOut)
-def get_result(
-    result_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    student = db.query(Student).filter(Student.user_id == current_user.id).first()
-    result = db.query(AssessmentResult).filter(
-        AssessmentResult.id == result_id,
-        AssessmentResult.student_id == student.id
-    ).first()
-    if not result:
-        raise HTTPException(status_code=404, detail="Result not found")
-    return result
-
-
 @router.get("/results/latest/me", response_model=AssessmentResultOut)
 def get_my_latest_result(
     db: Session = Depends(get_db),
@@ -134,3 +106,34 @@ def get_my_latest_result(
     if not result:
         raise HTTPException(status_code=404, detail="No assessment results found")
     return result
+
+
+@router.get("/results/{result_id}", response_model=AssessmentResultOut)
+def get_result(
+    result_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    student = db.query(Student).filter(Student.user_id == current_user.id).first()
+    result = db.query(AssessmentResult).filter(
+        AssessmentResult.id == result_id,
+        AssessmentResult.student_id == student.id
+    ).first()
+    if not result:
+        raise HTTPException(status_code=404, detail="Result not found")
+    return result
+
+
+@router.get("/{career_id}", response_model=AssessmentOut)
+def get_assessment(
+    career_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get the assessment for a career goal."""
+    assessment = db.query(Assessment).filter(
+        Assessment.career_goal_id == career_id
+    ).first()
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found for this career goal")
+    return assessment

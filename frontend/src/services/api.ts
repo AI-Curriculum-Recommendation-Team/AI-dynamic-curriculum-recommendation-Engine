@@ -16,14 +16,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 — redirect to login
+// Handle 401 — clear auth store fully then redirect to login
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Import lazily to avoid circular dependency
+      // Clear Zustand persisted state + localStorage in one call
+      import('../store').then(({ useAuthStore }) => {
+        useAuthStore.getState().clearAuth();
+      });
+      // Small delay so the store update propagates before navigation
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 50);
     }
     return Promise.reject(error);
   }
