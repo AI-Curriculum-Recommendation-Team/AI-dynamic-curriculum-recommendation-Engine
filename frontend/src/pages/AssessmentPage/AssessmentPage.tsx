@@ -130,11 +130,12 @@ export default function AssessmentPage() {
 
   return (
     <div className="page-container">
-      <div className="container-narrow">
+      <div className="container">
         {/* Unified Journey Flow: Stage 2 */}
         <GuidedJourneyFlow currentStep={2} careerTitle={student?.career_goal?.title} />
 
-        <div className="page-header animate-fade-up">
+        <div className="assessment-content-wrap" style={{ maxWidth: 880, margin: '0 auto' }}>
+          <div className="page-header animate-fade-up">
           <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
             <span className="badge badge-indigo flex items-center gap-1">
               <Brain size={14} /> Diagnostic Skill Assessment
@@ -256,6 +257,7 @@ export default function AssessmentPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

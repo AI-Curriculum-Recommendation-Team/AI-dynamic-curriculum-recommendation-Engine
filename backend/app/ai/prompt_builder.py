@@ -38,9 +38,11 @@ Assessment Scores:
 3. Identify skills required for {career_goal} that the student is missing entirely
 4. Determine a logical learning priority order (most critical gaps first)
 5. Generate a week-by-week curriculum sequence (6-10 weeks based on gaps)
-6. For each week, include:
-   - 2-4 realistic subtopics
-   - 2-3 curated learning resources (mix of video, docs, practice)
+6. For each week, provide 3-4 high-quality resources:
+   - At least 1 YouTube video tutorial (type: "video", url: "https://www.youtube.com/results?search_query=...")
+   - Official documentation or reference guide (type: "docs", e.g., MDN, official docs)
+   - Interactive practice website or exercises (type: "practice", e.g., freeCodeCamp, W3Schools, LeetCode)
+   - Developer roadmap or cheat sheet (type: "guide", e.g., roadmap.sh)
    - Estimated study hours (8-15 hours)
    - Difficulty level (beginner/intermediate/advanced)
 
@@ -48,7 +50,7 @@ Assessment Scores:
 - Be specific to {career_goal} requirements
 - Order topics logically (prerequisites before advanced topics)
 - Skip skills the student already has (score >= 75%)
-- Provide REAL resource titles (e.g., "Machine Learning by Andrew Ng - Coursera", "Official PyTorch Documentation")
+- Provide REAL resource titles and genuine working URLs (e.g. YouTube search queries or official sites). NEVER use placeholder or dummy URLs like example.com.
 
 Return ONLY a valid JSON object with this exact schema:
 {{
@@ -63,9 +65,9 @@ Return ONLY a valid JSON object with this exact schema:
       "topic": "Topic Name",
       "subtopics": ["Subtopic A", "Subtopic B"],
       "resources": [
-        {{"type": "video", "title": "Course Title", "url": "https://example.com"}},
-        {{"type": "docs", "title": "Documentation", "url": "https://docs.example.com"}},
-        {{"type": "practice", "title": "Exercise Set", "url": "https://example.com"}}
+        {{"type": "video", "title": "Topic Complete YouTube Tutorial", "url": "https://www.youtube.com/results?search_query=topic+tutorial"}},
+        {{"type": "docs", "title": "Official Documentation", "url": "https://developer.mozilla.org"}},
+        {{"type": "practice", "title": "Interactive Practice Exercises", "url": "https://www.w3schools.com"}}
       ],
       "estimated_hours": 10,
       "difficulty": "intermediate"

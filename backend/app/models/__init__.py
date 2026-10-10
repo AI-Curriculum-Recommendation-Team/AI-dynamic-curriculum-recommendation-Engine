@@ -4,9 +4,19 @@ from app.models.student import (
     Assessment, AssessmentQuestion, AssessmentResult,
     Curriculum, CurriculumWeek, Progress, Notification
 )
+from app.models.v2_models import (
+    TopicQuiz, QuizQuestion, QuizAttempt, WeeklyReport, Achievement
+)
+from app.models.v3_models import (
+    Document, DocumentChunk, ChatSession, ChatMessage,
+    Flashcard, FlashcardItem, StudentNote
+)
 
 __all__ = [
     "User", "Student", "Skill", "StudentSkill", "CareerGoal",
     "Assessment", "AssessmentQuestion", "AssessmentResult",
     "Curriculum", "CurriculumWeek", "Progress", "Notification",
+    "TopicQuiz", "QuizQuestion", "QuizAttempt", "WeeklyReport", "Achievement",
+    "Document", "DocumentChunk", "ChatSession", "ChatMessage",
+    "Flashcard", "FlashcardItem", "StudentNote",
 ]

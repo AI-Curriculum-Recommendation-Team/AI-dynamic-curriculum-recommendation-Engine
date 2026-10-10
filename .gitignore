@@ -69,7 +69,7 @@ coverage/
 # ----- Docker -----
 .dockerignore
 
-# ----- Misc / Scratch -----
-ps.md
-*.bak
-*.tmp
+# ----- Uploads -----
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+

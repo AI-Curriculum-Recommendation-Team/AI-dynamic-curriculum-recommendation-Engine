@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, BookOpen, Clock, ChevronDown, ChevronUp, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Brain, BookOpen, Clock, ChevronDown, ChevronUp, Zap, Sparkles, CheckCircle2, ExternalLink, FileText, Code, Compass } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { curriculumService } from '../../services';
 import { useStudentStore } from '../../store';
@@ -8,13 +8,6 @@ import type { Curriculum } from '../../types';
 import TopicQuizModal from '../../components/TopicQuizModal/TopicQuizModal';
 import GuidedJourneyFlow from '../../components/GuidedJourneyFlow/GuidedJourneyFlow';
 import './CurriculumPage.css';
-
-const RESOURCE_ICONS: Record<string, string> = {
-  video: '🎥',
-  docs: '📄',
-  practice: '⚡',
-  project: '🛠️',
-};
 
 export default function CurriculumPage() {
   const { student } = useStudentStore();
@@ -193,25 +186,62 @@ export default function CurriculumPage() {
                     )}
 
                     {/* Resources */}
-                    {week.resources.length > 0 && (
-                      <div>
-                        <h4 className="text-xs font-bold text-muted uppercase tracking-wider mb-2">Curated Resources</h4>
-                        <div className="resources-list">
-                          {week.resources.map((r: any, ri: number) => (
-                            <a
-                              key={ri}
-                              href={r.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="resource-item"
-                            >
-                              <span className="resource-icon">{RESOURCE_ICONS[r.type] || '🔗'}</span>
-                              <div>
-                                <div className="resource-title">{r.title}</div>
-                                <div className="resource-type text-xs text-muted">{r.type}</div>
-                              </div>
-                            </a>
-                          ))}
+                    {week.resources && week.resources.length > 0 && (
+                      <div className="curriculum-resources-section">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs font-bold text-muted uppercase tracking-wider">
+                            Curated Learning Resources ({week.resources.length})
+                          </h4>
+                          <span className="text-xs text-muted flex items-center gap-1.5">
+                            <span>🎥 Video</span> · <span>📄 Docs</span> · <span>⚡ Practice</span> · <span>🗺️ Guides</span>
+                          </span>
+                        </div>
+                        <div className="resources-grid">
+                          {week.resources.map((r: any, ri: number) => {
+                            const isVideo = r.type === 'video' || (r.url && r.url.toLowerCase().includes('youtube'));
+                            const isPractice = r.type === 'practice';
+                            const isGuide = r.type === 'guide';
+                            let domain = 'Open Link';
+                            try {
+                              domain = new URL(r.url).hostname.replace('www.', '');
+                            } catch {
+                              // ignore
+                            }
+
+                            return (
+                              <a
+                                key={ri}
+                                href={r.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`resource-card resource-card-${isVideo ? 'video' : r.type || 'docs'}`}
+                              >
+                                <div className={`resource-icon-box icon-type-${isVideo ? 'video' : r.type || 'docs'}`}>
+                                  {isVideo ? (
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" className="youtube-svg-icon">
+                                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                    </svg>
+                                  ) : isPractice ? (
+                                    <Code size={18} />
+                                  ) : isGuide ? (
+                                    <Compass size={18} />
+                                  ) : (
+                                    <FileText size={18} />
+                                  )}
+                                </div>
+                                <div className="resource-body">
+                                  <div className="resource-header-row">
+                                    <span className={`resource-badge badge-${isVideo ? 'video' : r.type || 'docs'}`}>
+                                      {isVideo ? 'YouTube Tutorial' : isPractice ? 'Interactive Practice' : isGuide ? 'Roadmap / Guide' : 'Documentation'}
+                                    </span>
+                                    <ExternalLink size={12} className="resource-ext-icon" />
+                                  </div>
+                                  <div className="resource-title" title={r.title}>{r.title}</div>
+                                  <div className="resource-domain">{domain}</div>
+                                </div>
+                              </a>
+                            );
+                          })}
                         </div>
                       </div>
                     )}

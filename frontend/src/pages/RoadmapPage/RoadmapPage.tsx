@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, Clock, Circle, PlayCircle, Zap, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CheckCircle2, Clock, Circle, PlayCircle, Zap, Sparkles, Brain, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { curriculumService, progressService } from '../../services';
 import type { RoadmapData } from '../../types';
@@ -75,20 +76,30 @@ export default function RoadmapPage() {
 
   return (
     <div className="page-container">
-      <div className="container-narrow">
+      <div className="container">
         {/* Stage 5 in the 5-Stage Journey */}
         <GuidedJourneyFlow currentStep={5} careerTitle={roadmap.career_goal} />
 
-        <div className="page-header animate-fade-up">
-          <span className="badge badge-emerald mb-3 flex items-center gap-1" style={{ width: 'fit-content' }}>
-            <Sparkles size={14} /> Stage 5: Execution & Mastery Roadmap
-          </span>
-          <h1 className="page-title">
-            Your Dynamic Roadmap to <span className="gradient-text">{roadmap.career_goal}</span>
-          </h1>
-          <p className="page-subtitle">
-            {roadmap.total_weeks} weeks · {completed} completed · {inProgress} in progress · {pct}% total mastery
-          </p>
+        <div className="roadmap-header animate-fade-up">
+          <div>
+            <span className="badge badge-emerald mb-3 flex items-center gap-1" style={{ width: 'fit-content' }}>
+              <Sparkles size={14} /> Stage 5: Execution & Mastery Roadmap
+            </span>
+            <h1 className="page-title">
+              Your Dynamic Roadmap to <span className="gradient-text">{roadmap.career_goal}</span>
+            </h1>
+            <p className="page-subtitle">
+              {roadmap.total_weeks} weeks · {completed} completed · {inProgress} in progress · {pct}% total mastery
+            </p>
+          </div>
+          <div className="flex gap-3 flex-wrap items-center">
+            <Link to="/curriculum" className="btn btn-secondary">
+              <Sparkles size={15} /> Stage 4: AI Curriculum
+            </Link>
+            <Link to="/tutor" className="btn btn-primary btn-glow">
+              <Brain size={15} /> Open AI Tutor
+            </Link>
+          </div>
         </div>
 
         {/* Milestone Progress Bar */}
@@ -160,6 +171,36 @@ export default function RoadmapPage() {
                       {week.subtopics.slice(0, 4).map(s => (
                         <span key={s} className="subtopic-chip">{s}</span>
                       ))}
+                    </div>
+                  )}
+
+                  {/* Resource Shortcuts (YouTube, Docs, Practice) */}
+                  {week.resources && week.resources.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 pt-2" style={{ borderTop: '1px dashed var(--border-color)' }}>
+                      {week.resources.slice(0, 3).map((r, ri) => {
+                        const isVideo = r.type === 'video' || (r.url && r.url.toLowerCase().includes('youtube'));
+                        return (
+                          <a
+                            key={ri}
+                            href={r.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs flex items-center gap-1 px-2.5 py-1 rounded"
+                            style={{
+                              background: isVideo ? 'rgba(239, 68, 68, 0.08)' : 'var(--bg-secondary)',
+                              color: isVideo ? '#ef4444' : 'var(--clr-indigo-500)',
+                              border: `1px solid ${isVideo ? 'rgba(239,68,68,0.25)' : 'var(--border-color)'}`,
+                              textDecoration: 'none',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                            }}
+                            title={r.title}
+                          >
+                            <span>{isVideo ? '▶ YouTube' : r.type === 'practice' ? '⚡ Practice' : '📄 Docs'}</span>
+                            <ExternalLink size={10} />
+                          </a>
+                        );
+                      })}
                     </div>
                   )}
 

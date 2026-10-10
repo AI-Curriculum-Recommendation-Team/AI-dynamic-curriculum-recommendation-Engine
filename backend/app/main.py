@@ -36,8 +36,10 @@ app.add_middleware(
 )
 
 from app.api.v1 import auth, students, careers, assessments, curriculum, progress, admin, notifications
+from app.api.v2 import router as v2_router
+from app.api.v3 import router as v3_router
 
-# Register routers
+# Register V1 routers
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(students.router, prefix=settings.API_V1_STR)
 app.include_router(careers.router, prefix=settings.API_V1_STR)
@@ -46,6 +48,12 @@ app.include_router(curriculum.router, prefix=settings.API_V1_STR)
 app.include_router(progress.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
 app.include_router(notifications.router, prefix=settings.API_V1_STR)
+
+# Register V2 & V3 routers (under /api and also /api/v1 for client compatibility)
+app.include_router(v2_router, prefix="/api")
+app.include_router(v3_router, prefix="/api")
+app.include_router(v2_router, prefix=settings.API_V1_STR)
+app.include_router(v3_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/")

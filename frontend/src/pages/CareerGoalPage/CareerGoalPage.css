@@ -1,3 +1,8 @@
+/* ============================================================
+   Career Goal Page — Premium Selection Experience
+   ============================================================ */
+
+/* ---- Career Selection Grid ---- */
 .career-select-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -5,62 +10,94 @@
   margin-top: 2rem;
 }
 
+/* ---- Career Card ---- */
 .career-select-card {
-  padding: 1.75rem;
+  padding: 2rem 1.75rem;
   text-align: center;
   cursor: pointer;
   border: 2px solid var(--border-color);
-  transition: all var(--transition-base);
-  position: relative;
-  background: var(--bg-card);
   border-radius: var(--radius-xl);
+  background: var(--bg-card);
+  position: relative;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.career-select-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-card);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
 }
 
 .career-select-card:hover {
-  border-color: var(--clr-indigo-400);
+  border-color: rgba(99,102,241,0.40);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-indigo);
 }
+
+.career-select-card:hover::before { opacity: 1; }
 
 .career-select-card.selected {
   border-color: var(--clr-indigo-500);
-  background: rgba(99,102,241,0.05);
-  box-shadow: var(--shadow-indigo);
+  background: linear-gradient(145deg, rgba(99,102,241,0.08) 0%, var(--bg-card) 100%);
+  box-shadow: var(--shadow-glow-indigo), var(--shadow-lg);
+  transform: translateY(-3px);
 }
 
+.career-select-card.selected::before { opacity: 1; }
+
+/* Check indicator */
 .career-select-check {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 24px;
-  height: 24px;
+  top: 1rem; right: 1rem;
+  width: 26px; height: 26px;
   border-radius: 50%;
   border: 2px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   font-size: 0.75rem;
-  color: white;
-  transition: all var(--transition-fast);
+  color: transparent;
+  transition: all var(--transition-base);
+  background: var(--bg-secondary);
 }
 
 .career-select-card.selected .career-select-check {
-  background: var(--clr-indigo-500);
-  border-color: var(--clr-indigo-500);
+  background: var(--gradient-brand);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.40);
 }
 
+/* Career icon */
 .career-select-icon {
-  font-size: 3rem;
-  margin-bottom: 0.875rem;
+  font-size: 3.25rem;
+  margin-bottom: 1rem;
+  display: block;
+  transition: transform 0.3s ease;
+  position: relative; z-index: 1;
+}
+
+.career-select-card:hover .career-select-icon {
+  transform: scale(1.15) translateY(-3px);
 }
 
 .career-select-title {
-  font-size: 1.0625rem;
-  font-weight: 700;
+  font-size: 1.0625rem; font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
+  position: relative; z-index: 1;
 }
 
 .career-select-desc {
-  line-height: 1.5;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  position: relative; z-index: 1;
 }
 
 .career-select-skills {
@@ -68,12 +105,34 @@
   flex-wrap: wrap;
   gap: 0.375rem;
   justify-content: center;
+  position: relative; z-index: 1;
 }
 
+/* ---- Confirm Section ---- */
 .career-confirm {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2.5rem;
-  padding: 2rem;
+  margin-top: 3rem;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(16,185,129,0.04) 100%);
+  border: 1.5px solid rgba(99,102,241,0.25);
+  border-radius: var(--radius-xl);
+  text-align: center;
+  gap: 1rem;
+}
+
+.career-confirm-icon {
+  font-size: 3rem; line-height: 1;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .career-select-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .career-select-card {
+    padding: 1.5rem;
+  }
 }

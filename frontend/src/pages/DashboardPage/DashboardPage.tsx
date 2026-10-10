@@ -11,11 +11,12 @@ import {
   Filler, Tooltip, Legend
 } from 'chart.js';
 import toast from 'react-hot-toast';
-import { studentService, curriculumService, progressService, assessmentService } from '../../services';
+import { studentService, curriculumService, progressService, assessmentService, v2Service } from '../../services';
 import { useAuthStore, useStudentStore } from '../../store';
-import type { ProgressSummary, Curriculum, AssessmentResult } from '../../types';
+import type { ProgressSummary, Curriculum, AssessmentResult, Achievement } from '../../types';
 import GuidedJourneyFlow from '../../components/GuidedJourneyFlow/GuidedJourneyFlow';
 import type { JourneyStep } from '../../components/GuidedJourneyFlow/GuidedJourneyFlow';
+import { Bot, FileText, Layers } from 'lucide-react';
 import './DashboardPage.css';
 
 ChartJS.register(
@@ -29,6 +30,7 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<ProgressSummary | null>(null);
   const [curriculum, setCurriculum] = useState<Curriculum | null>(null);
   const [latestAssessment, setLatestAssessment] = useState<AssessmentResult | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
   const [aiReport, setAiReport] = useState<string | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
@@ -49,16 +51,18 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const [profRes, progRes, assessRes, curRes] = await Promise.allSettled([
+        const [profRes, progRes, assessRes, curRes, achRes] = await Promise.allSettled([
           studentService.getProfile(),
           progressService.getSummary(),
           assessmentService.getLatestResult(),
           curriculumService.getMyCurriculum(),
+          v2Service.getAchievements(),
         ]);
 
         if (profRes.status === 'fulfilled') setStudent(profRes.value);
         if (progRes.status === 'fulfilled') setSummary(progRes.value);
         if (assessRes.status === 'fulfilled') setLatestAssessment(assessRes.value);
+        if (achRes.status === 'fulfilled') setAchievements(achRes.value);
         if (curRes.status === 'fulfilled') {
           setCurriculum(curRes.value);
           // Fetch coach report if curriculum exists
@@ -458,6 +462,130 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Version 3 Interactive Learning Suite */}
+        <div className="mt-8 animate-fade-up delay-350">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <span className="badge badge-purple text-xs mb-1 block" style={{ width: 'fit-content' }}>
+                Version 3 AI Intelligence Hub
+              </span>
+              <h2 className="text-lg font-bold">Interactive Learning & Knowledge Suite</h2>
+              <p className="text-xs text-muted">Grounded RAG tutoring, vector PDF indexing, flashcards & notes</p>
+            </div>
+          </div>
+
+          <div className="grid-4">
+            <Link to="/tutor" className="card-3d p-4 flex flex-col justify-between hover:border-indigo-500 transition-all">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+                  <Bot size={22} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">AI Chat Tutor</h3>
+                  <span className="text-[11px] text-emerald-400">RAG Grounded</span>
+                </div>
+              </div>
+              <p className="text-xs text-secondary mb-3">
+                Conversational study assistant answering questions with citations from your notes.
+              </p>
+              <span className="text-xs text-primary font-semibold flex items-center gap-1">
+                Open Tutor Chat →
+              </span>
+            </Link>
+
+            <Link to="/documents" className="card-3d p-4 flex flex-col justify-between hover:border-indigo-500 transition-all">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+                  <FileText size={22} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">Knowledge Base</h3>
+                  <span className="text-[11px] text-secondary">PDF & Text Docs</span>
+                </div>
+              </div>
+              <p className="text-xs text-secondary mb-3">
+                Upload textbooks and lecture notes to index into the vector database.
+              </p>
+              <span className="text-xs text-primary font-semibold flex items-center gap-1">
+                Manage Documents →
+              </span>
+            </Link>
+
+            <Link to="/flashcards" className="card-3d p-4 flex flex-col justify-between hover:border-indigo-500 transition-all">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400">
+                  <Layers size={22} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">AI Flashcards</h3>
+                  <span className="text-[11px] text-secondary">3D Flip Study</span>
+                </div>
+              </div>
+              <p className="text-xs text-secondary mb-3">
+                Auto-generate active recall cards with difficulty ratings and mastery tracking.
+              </p>
+              <span className="text-xs text-primary font-semibold flex items-center gap-1">
+                Study Flashcards →
+              </span>
+            </Link>
+
+            <Link to="/notes" className="card-3d p-4 flex flex-col justify-between hover:border-indigo-500 transition-all">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-400">
+                  <BookOpen size={22} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">Study Notes</h3>
+                  <span className="text-[11px] text-secondary">Key Takeaways</span>
+                </div>
+              </div>
+              <p className="text-xs text-secondary mb-3">
+                AI-synthesized revision notes with code patterns and takeaways.
+              </p>
+              <span className="text-xs text-primary font-semibold flex items-center gap-1">
+                Read Notes →
+              </span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Milestone Badges & Achievements (V2) */}
+        <div className="mt-8 animate-fade-up delay-400 mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <span className="badge badge-amber text-xs mb-1 block" style={{ width: 'fit-content' }}>
+                Version 2 Gamification & Rewards
+              </span>
+              <h2 className="text-lg font-bold">Earned Badges & Achievements ({achievements.length})</h2>
+              <p className="text-xs text-muted">Milestones unlocked along your curriculum journey</p>
+            </div>
+          </div>
+
+          {achievements.length === 0 ? (
+            <div className="card-3d p-6 text-center text-secondary text-xs">
+              <Award size={28} className="mx-auto mb-2 text-muted" />
+              <span>Complete diagnostic quizzes, generate your curriculum, and take topic quizzes to unlock milestone badges!</span>
+            </div>
+          ) : (
+            <div className="grid-3">
+              {achievements.map((ach) => (
+                <div key={ach.id} className="card-3d p-4 flex items-center gap-3.5 border-l-4 border-l-indigo-500">
+                  <div className="p-3 rounded-full bg-indigo-500/15 text-indigo-400 shrink-0">
+                    <Award size={22} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-primary">{ach.badge_name}</h4>
+                    <p className="text-xs text-secondary mt-0.5">{ach.description}</p>
+                    <span className="text-[10px] text-muted block mt-1">
+                      Unlocked on {new Date(ach.earned_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

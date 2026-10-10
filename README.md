@@ -5,8 +5,8 @@
 <p>
   <img src="https://img.shields.io/badge/Domain-Generative%20AI%20%26%20AI%20Agents-blueviolet?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Type-Academic%20Mini%20Project-blue?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Status-In%20Development-orange?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Target-Version%201%20(MVP)-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Built%20Up%20To%20V3%20(Operational)-brightgreen?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Current-V1%20%2B%20V2%20%2B%20V3%20Operational-blue?style=for-the-badge" />
 </p>
 
 <p>
@@ -32,6 +32,7 @@
 2. [Problem Statement](#2-problem-statement)
 3. [Proposed Solution](#3-proposed-solution)
 4. [Project Vision & Version Roadmap](#4-project-vision--version-roadmap)
+   - 🌟 [Comprehensive Overview of Built Capabilities](#-comprehensive-overview-of-built-capabilities-up-to-current-state)
 5. [Version 1 Scope (MVP)](#5-version-1-scope-mvp)
 6. [Complete User Workflow](#6-complete-user-workflow)
 7. [High-Level System Architecture](#7-high-level-system-architecture)
@@ -139,13 +140,77 @@ flowchart TD
 
 ### Version Summary Table
 
-| Version | Main Features | Goal |
-|---------|--------------|------|
-| **V1** ✅ | Profile, Career Goal, Assessment, Skill Gap, AI Curriculum, Roadmap, Progress Tracking | Working personalized curriculum engine (MVP) |
-| **V2** | Adaptive curriculum, AI quizzes, weekly reports, difficulty adjustment, notifications | Make curriculum dynamic and self-improving |
-| **V3** | AI Tutor, RAG, PDF analysis, notes summarization, flashcards, vector DB | Conversational AI learning assistant |
-| **V4** | Resume analysis, interview preparation, coding challenges, AI career coach | Career readiness and placement preparation |
-| **V5** | Multi-agent architecture, voice assistant, learning analytics, placement readiness | Full AI learning ecosystem |
+| Version | Status | Main Features | Goal |
+|---------|--------|---------------|------|
+| **V1** | ✅ **Built & Operational** | Profile, Career Goals, Baseline Assessment, Skill Gap Analyzer, AI Curriculum Generation, Interactive Roadmap, Progress Tracking, Admin Panel | Fully working personalized curriculum engine |
+| **V2** | ✅ **Built & Operational** | AI-generated adaptive quizzes, auto-grading, dynamic advancement (>=80%), weak topic remediation, difficulty calibration | Adaptive, self-improving curriculum loop |
+| **V3** | ✅ **Built & Operational** | Conversational AI Tutor, RAG Document Knowledge Base (PDF upload & indexing), 3D Interactive Flashcards, AI Study Notes Summarizer | Comprehensive grounded AI study suite |
+| **V4** | ⏳ Planned | Resume parser, interview simulator, coding challenge engine | Career coach & placement preparation |
+| **V5** | ⏳ Planned | Multi-agent coordination, voice tutor, faculty cohort analytics | Enterprise multi-agent ecosystem |
+
+---
+
+### 🌟 Comprehensive Overview of Built Capabilities (Up to Current State)
+
+Here is a breakdown of everything designed, implemented, and fully functional in the platform:
+
+#### 1. 🎓 Stage-by-Stage Guided Learning Journey
+- **5-Stage Visual Workflow**: An intuitive journey tracker across the entire platform:
+  1. `Stage 1: Select Career Goal` (`/career`)
+  2. `Stage 2: Diagnostic Skill Assessment` (`/assessment`)
+  3. `Stage 3: Skill Gap Analysis & Baseline` (`/results`)
+  4. `Stage 4: AI Curriculum Engine` (`/curriculum`)
+  5. `Stage 5: Execution & Mastery Roadmap` (`/roadmap`)
+
+#### 2. 🧠 Core AI Curriculum Engine & Skill Gap Analyzer (V1)
+- **Career-Aligned Paths**: Full support for Software Engineering, Data Science, AI Engineering, Cloud Engineering, and Data Analysis.
+- **Dynamic Assessment**: Adaptive multi-skill diagnostic questionnaires evaluating real domain competencies.
+- **Skill Gap Matrix**: Identifies strong competencies, accelerated focus areas, and high-priority skill gaps.
+- **Gemini Multi-Model Pipeline**: Resilient LLM routing with automatic fallback (`gemini-3.5-flash-lite` ➔ `gemini-3.1-flash-lite` ➔ `gemini-3.5-flash`) preventing rate limits and quota errors.
+- **Interactive Roadmap**: Week-by-week module tracker with status transitions (`Not Started`, `In Progress`, `Completed`) and progress metrics.
+
+#### 3. 🎥 Curated Multimedia Resources (YouTube, Docs & Sandboxes)
+- **YouTube Tutorials**: Curated video crash courses from top creators (freeCodeCamp, Traversy Media, Programming with Mosh, Bro Code) integrated directly into curriculum weeks.
+- **Official Documentation**: Verified links to authoritative docs (MDN Web Docs, React Docs, Python 3, Git Pro Book, PostgreSQL).
+- **Interactive Coding Sandboxes**: Hands-on practice platforms (W3Schools sandboxes, SQLBolt, Learn Git Branching).
+- **Architecture Guides**: Career roadmaps and best practice cheat sheets (Roadmap.sh, CSS-Tricks, RESTful API Tutorial).
+- **Auto-Enrichment on Read**: Background enrichment that ensures existing and newly generated curriculums always contain full YouTube tutorials and active practice sites.
+
+#### 4. ⚡ Adaptive Learning & Quiz Loop (V2)
+- **On-Demand AI Quizzes**: Generates calibrated 5-question multiple choice quizzes dynamically per topic and difficulty level (`/api/v1/curriculum/quiz/{week_id}`).
+- **Adaptive Mastery Loop**:
+  - Scores $\ge 80\%$: Automatically advances progress to **Completed** and unlocks next stages.
+  - Scores $< 80\%$: Flags weak concepts, keeps module **In Progress**, and dynamically reinforces focus areas.
+
+#### 5. 🤖 RAG-Powered AI Study Suite (V3)
+- **AI Tutor (`/tutor`)**:
+  - Conversational study assistant embedded with topic and curriculum awareness.
+  - Supports persistent multi-turn chat sessions and historical review.
+  - Fully formatted responses rendering GitHub-flavored Markdown, LaTeX math expressions, syntax-highlighted code blocks, and structured lists.
+- **Document Knowledge Base (`/documents`)**:
+  - PDF and textbook upload pipeline with automatic server storage.
+  - Text extraction, chunking, and semantic indexing into local vector store using Gemini Embeddings (`models/gemini-embedding-001`) with deterministic fallback vectors.
+- **Smart 3D Flashcards (`/flashcards`)**:
+  - On-demand AI flashcard generation for any curriculum topic or uploaded document.
+  - Interactive 3D flip card animation, difficulty badges, and card-by-card mastery tracking.
+- **AI Study Notes & Summarizer (`/notes`)**:
+  - Summarizes dense technical PDFs and curriculum topics into structured bulleted study guides, cheat-sheets, and revision summaries.
+  - Rendered with responsive, high-readability Markdown.
+
+#### 6. 🛡️ Complete Admin Management Panel (`/admin`)
+- **Platform Analytics**: Real-time counters for Total Users, Active Students, Curricula Generated, and 24h Active Users.
+- **Career Goal Distribution**: Visual breakdown of student interests across tech domains.
+- **User Administration**:
+  - Searchable directory of registered users with email, student name, and registration dates.
+  - Instant role switcher between `user` and `admin`.
+  - One-click account activation / deactivation toggle with security guards preventing self-lockout.
+
+#### 7. 🎨 Premium Modern UI/UX Experience
+- **Responsive Layout**:
+  - Persistent, collapsible sidebar with wide and compact icon-only states.
+  - Top sticky navbar with Dark/Light theme toggle, user profile avatar, and instant logout.
+- **Authentication**: JWT token authentication with bcrypt password hashing + Google OAuth 2.0 Single Sign-On.
+- **Mobile Friendly**: Full support for varying screen sizes, touch targets, and mobile viewports.
 
 ---
 
@@ -607,6 +672,41 @@ erDiagram
 | `PUT` | `/api/v1/progress/{week_id}` | Update topic status |
 | `GET` | `/api/v1/progress/summary` | Get overall progress summary |
 
+### Admin Endpoints (Role-Protected)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/admin/users` | List all users and student profiles |
+| `PUT` | `/api/v1/admin/users/{id}/toggle-active` | Activate or deactivate student account |
+| `PUT` | `/api/v1/admin/users/{id}/role` | Switch account role (`user` / `admin`) |
+| `GET` | `/api/v1/admin/stats` | Platform-wide stats and career distributions |
+
+### V2 Adaptive Quiz Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/curriculum/quiz/{week_id}` | AI generates 5-question adaptive quiz for topic |
+| `POST` | `/api/v1/curriculum/quiz/{week_id}/submit` | Submit answers and trigger adaptive learning advance |
+| `POST` | `/api/v2/curriculum/adapt` | Adapt entire roadmap based on performance |
+| `GET` | `/api/v2/reports/weekly` | Generate AI-written weekly progress report |
+
+### V3 AI Study Suite & RAG Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v3/tutor/sessions` | Create a new AI tutor chat session |
+| `POST` | `/api/v3/tutor/sessions/{id}/message` | Send question and get AI tutor markdown answer |
+| `GET` | `/api/v3/tutor/sessions/{id}/history` | Retrieve full chat history |
+| `GET` | `/api/v3/tutor/sessions` | List student chat sessions |
+| `POST` | `/api/v3/documents/upload` | Upload PDF or text document |
+| `GET` | `/api/v3/documents` | List uploaded documents |
+| `DELETE` | `/api/v3/documents/{id}` | Delete document and vector index |
+| `POST` | `/api/v3/documents/{id}/index` | Index document chunks into vector database |
+| `POST` | `/api/v3/flashcards/generate/{week_id}` | Generate topic flashcards with AI |
+| `GET` | `/api/v3/flashcards` | List all student flashcard sets |
+| `POST` | `/api/v3/notes/summarize/{doc_id}` | AI summarizes document into study notes |
+| `GET` | `/api/v3/notes` | Get all saved study notes |
+
 ---
 
 ## 12. Project Directory Structure
@@ -614,93 +714,85 @@ erDiagram
 ```
 ai-curriculum-engine/
 │
-├── frontend/                             # React + TypeScript frontend
+├── frontend/                             # React 18 + TypeScript frontend
 │   ├── public/
 │   ├── src/
 │   │   ├── components/                   # Reusable UI components
-│   │   │   ├── Auth/
-│   │   │   ├── Profile/
-│   │   │   ├── Assessment/
-│   │   │   ├── Roadmap/
-│   │   │   └── Progress/
+│   │   │   ├── GuidedJourneyFlow/        # 5-Stage progress tracker
+│   │   │   ├── Navbar/                   # Sticky top bar (Theme & User)
+│   │   │   ├── Sidebar/                  # Collapsible multi-tier sidebar
+│   │   │   ├── TopicQuizModal/           # Adaptive quiz modal dialog
+│   │   │   └── GoogleAuthButton/         # Google OAuth login button
 │   │   ├── pages/                        # Page-level components
-│   │   │   ├── RegisterPage.tsx
-│   │   │   ├── LoginPage.tsx
-│   │   │   ├── ProfilePage.tsx
-│   │   │   ├── CareerGoalPage.tsx
-│   │   │   ├── AssessmentPage.tsx
-│   │   │   ├── ResultsPage.tsx
-│   │   │   ├── CurriculumPage.tsx
-│   │   │   ├── RoadmapPage.tsx
-│   │   │   └── ProgressPage.tsx
-│   │   ├── hooks/                        # Custom React hooks
-│   │   ├── services/                     # API call functions (Axios)
-│   │   ├── store/                        # State management
-│   │   ├── types/                        # TypeScript type definitions
-│   │   ├── utils/                        # Helper utilities
-│   │   ├── App.tsx
-│   │   └── main.tsx
+│   │   │   ├── LandingPage/              # Public product showcase
+│   │   │   ├── Auth/                     # Login & Register views
+│   │   │   ├── DashboardPage/            # Student learning overview
+│   │   │   ├── ProfilePage/              # Skills & preferences
+│   │   │   ├── CareerGoalPage/           # Career goal selection
+│   │   │   ├── AssessmentPage/           # Diagnostic skills assessment
+│   │   │   ├── ResultsPage/              # Skill gap baseline report
+│   │   │   ├── CurriculumPage/           # AI curriculum + YouTube resources
+│   │   │   ├── RoadmapPage/              # Interactive 3D weekly roadmap
+│   │   │   ├── TutorPage/                # AI Study Tutor (Markdown chat)
+│   │   │   ├── DocumentsPage/            # PDF upload & RAG indexer
+│   │   │   ├── FlashcardsPage/           # 3D interactive flashcards
+│   │   │   ├── NotesPage/                # Document summarizer & study notes
+│   │   │   └── AdminDashboard/           # Admin analytics & user management
+│   │   ├── services/                     # API clients (Axios services)
+│   │   ├── store/                        # Zustand global stores (Auth, Theme)
+│   │   ├── types/                        # TypeScript interfaces
+│   │   ├── App.tsx                       # App layout, routing & guards
+│   │   └── main.tsx                      # Frontend entrypoint
 │   ├── package.json
-│   ├── tsconfig.json
-│   └── tailwind.config.js
+│   └── vite.config.ts
 │
 ├── backend/                              # FastAPI Python backend
 │   ├── app/
 │   │   ├── api/
-│   │   │   └── v1/
-│   │   │       ├── auth.py
-│   │   │       ├── students.py
-│   │   │       ├── careers.py
-│   │   │       ├── assessments.py
-│   │   │       ├── curriculum.py
-│   │   │       └── progress.py
+│   │   │   ├── v1/                       # Core V1 APIs
+│   │   │   │   ├── auth.py               # Registration, Login, Google SSO
+│   │   │   │   ├── students.py           # Student profiles & skills
+│   │   │   │   ├── careers.py            # Career goal paths
+│   │   │   │   ├── assessments.py        # Diagnostic tests
+│   │   │   │   ├── curriculum.py         # AI Curriculum generation & auto-enrich
+│   │   │   │   ├── progress.py           # Week status tracking
+│   │   │   │   └── admin.py              # Platform metrics & user manager
+│   │   │   ├── v2/                       # V2 Adaptive Learning APIs
+│   │   │   │   └── curriculum_v2.py      # Roadmap adaptation & weekly reports
+│   │   │   └── v3/                       # V3 AI Study Suite APIs
+│   │   │       ├── tutor.py              # AI Tutor conversational sessions
+│   │   │       ├── documents.py          # PDF upload & vector indexing
+│   │   │       ├── flashcards.py         # AI Flashcard generation
+│   │   │       └── notes.py              # Document summarization
 │   │   ├── core/
-│   │   │   ├── config.py                 # App configuration
-│   │   │   ├── security.py               # JWT & password hashing
-│   │   │   └── database.py               # DB connection & session
-│   │   ├── models/                       # SQLAlchemy ORM models
-│   │   │   ├── user.py
-│   │   │   ├── student.py
-│   │   │   ├── skill.py
-│   │   │   ├── assessment.py
-│   │   │   ├── curriculum.py
-│   │   │   └── progress.py
-│   │   ├── schemas/                      # Pydantic schemas
-│   │   ├── services/                     # Business logic layer
-│   │   │   ├── auth_service.py
-│   │   │   ├── profile_service.py
-│   │   │   ├── assessment_service.py
-│   │   │   ├── curriculum_service.py
-│   │   │   └── progress_service.py
-│   │   ├── ai/                           # AI Engine
-│   │   │   ├── skill_gap_analyzer.py
-│   │   │   ├── curriculum_generator.py
-│   │   │   ├── prompt_builder.py
-│   │   │   └── llm_client.py
-│   │   └── main.py                       # FastAPI app entrypoint
-│   ├── alembic/                          # Database migrations
+│   │   │   ├── config.py                 # Settings & Gemini API key
+│   │   │   ├── security.py               # JWT tokens, bcrypt, require_admin
+│   │   │   └── database.py               # SQLAlchemy SQLite/Postgres engine
+│   │   ├── models/                       # SQLAlchemy models
+│   │   │   ├── user.py                   # User & authentication
+│   │   │   ├── student.py                # Student, Career, Assessment, Curriculum
+│   │   │   ├── v2_models.py              # Quizzes, Reports, Achievements
+│   │   │   └── v3_models.py              # Documents, Chunks, Sessions, Cards, Notes
+│   │   ├── schemas/                      # Pydantic schemas (V1, V2, V3)
+│   │   ├── ai/                           # AI & RAG Engine
+│   │   │   ├── llm_client.py             # Multi-tier Gemini model caller
+│   │   │   ├── curriculum_generator.py   # AI Curriculum + Curated YouTube DB
+│   │   │   ├── prompt_builder.py         # Prompts for curriculum & quizzes
+│   │   │   ├── rag_engine.py             # Semantic embedding & vector index
+│   │   │   └── study_ai.py               # AI Tutor & summarizer logic
+│   │   └── main.py                       # FastAPI entrypoint with CORS & routes
 │   ├── requirements.txt
-│   └── .env.example
+│   └── curriculum.db                     # SQLite database (auto-generated)
 │
-├── docs/                                 # Project documentation
-│   ├── ps.md
-│   ├── database_design.md
-│   ├── api_docs.md
-│   └── testing.md
-│
-├── tests/                                # Test suite
-│   ├── backend/
-│   └── frontend/
+├── tests/                                # Backend & flow test suites
+│   └── backend/
+│       └── test_v2_v3_flow.py            # Comprehensive V1/V2/V3 flow tests
 │
 ├── docker-compose.yml
 ├── Dockerfile.backend
 ├── Dockerfile.frontend
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-├── .gitignore
-├── .env.example
-└── README.md
+├── README.md
+└── .env.example
 ```
 
 ---

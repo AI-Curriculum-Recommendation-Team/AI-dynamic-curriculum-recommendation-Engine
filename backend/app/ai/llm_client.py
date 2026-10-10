@@ -14,12 +14,14 @@ from google import genai
 from google.genai import types
 from app.core.config import settings
 
-# Model preference order — newest/fastest first, with fallbacks
+# Model preference order — fast and high-quota models first
 _MODEL_PREFERENCE = [
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
     "gemini-3.6-flash",
     "gemini-2.5-flash",
     "gemini-flash-latest",
-    "gemini-2.5-flash-lite",
 ]
 
 
@@ -29,25 +31,15 @@ def _get_client() -> genai.Client:
 
 
 def _pick_model(client: genai.Client) -> str:
-    """Return the first available model from the preference list."""
-    try:
-        available = {m.name.split("/")[-1] for m in client.models.list()}
-    except Exception:
-        available = set()
-
-    for model in _MODEL_PREFERENCE:
-        if not available or model in available:
-            return model
-
-    return _MODEL_PREFERENCE[0]  # default fallback
+    """Return the first preferred model."""
+    return _MODEL_PREFERENCE[0]
 
 
 def generate_content(prompt: str) -> Optional[str]:
     """Send a prompt to Gemini and return the text response."""
     client = _get_client()
-    model = _pick_model(client)
 
-    for attempt_model in [model] + [m for m in _MODEL_PREFERENCE if m != model]:
+    for attempt_model in _MODEL_PREFERENCE:
         try:
             response = client.models.generate_content(
                 model=attempt_model,
@@ -64,18 +56,10 @@ def generate_content(prompt: str) -> Optional[str]:
                 return text
         except Exception as e:
             err = str(e)
-            print(f"[LLM] {attempt_model} failed: {err[:200]}")
-            # Rate-limited → try next model
-            if "429" in err or "RESOURCE_EXHAUSTED" in err:
-                continue
-            # Hard error on this model → try next
-            if "404" in err or "NOT_FOUND" in err:
-                continue
-            # Unexpected error
-            print(f"[LLM] Unexpected error with {attempt_model}: {err}")
+            print(f"[LLM] {attempt_model} failed: {err[:160]}")
             continue
 
-    print("[LLM] All models exhausted — quiz generation failed.")
+    print("[LLM] All models exhausted.")
     return None
 
 

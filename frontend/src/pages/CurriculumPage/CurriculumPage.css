@@ -1,148 +1,322 @@
+/* ============================================================
+   Curriculum Page — Premium Accordion Curriculum View
+   ============================================================ */
+
+/* ---- Header ---- */
 .curriculum-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-.skill-group { padding: 1.25rem; }
+/* ---- Skill Group Card ---- */
+.skill-group {
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
 
+.skill-group::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gradient-brand);
+  opacity: 0.8;
+}
+
+/* ---- Weeks List ---- */
 .weeks-list {
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: 0.75rem;
 }
 
 .week-card {
-  padding: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  cursor: default;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .week-card:hover {
-  transform: translateY(-2px);
+  border-color: rgba(99,102,241,0.25);
+  box-shadow: var(--shadow-md);
 }
 
+/* ---- Week Header ---- */
 .week-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 1.25rem 1.5rem;
+  padding: 1.125rem 1.5rem;
   background: transparent;
   border: none;
   cursor: pointer;
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   transition: background var(--transition-fast);
+  text-align: left;
 }
 
-.week-header:hover { background: rgba(99,102,241,0.03); }
+.week-header:hover {
+  background: rgba(99,102,241,0.03);
+}
 
 .week-header-left {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex: 1;
+  min-width: 0;
 }
 
+/* Week Number Badge */
 .week-num-badge {
-  width: 44px;
-  height: 44px;
+  width: 46px; height: 46px;
   border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.875rem;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.9rem;
   font-family: 'Space Grotesk', sans-serif;
   flex-shrink: 0;
 }
 
-.difficulty-beginner { background: rgba(16,185,129,0.12); color: var(--clr-emerald-500); }
+.difficulty-beginner     { background: rgba(16,185,129,0.12); color: var(--clr-emerald-500); }
 .difficulty-intermediate { background: rgba(99,102,241,0.12); color: var(--clr-indigo-500); }
-.difficulty-advanced { background: rgba(244,63,94,0.12); color: var(--clr-rose-500); }
+.difficulty-advanced     { background: rgba(244,63,94,0.12);  color: var(--clr-rose-500); }
 
 .week-topic {
-  font-weight: 700;
-  font-size: 0.9375rem;
+  font-weight: 700; font-size: 0.9375rem;
   text-align: left;
+  color: var(--text-primary);
 }
 
 .week-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.125rem;
-  font-weight: 500;
+  display: flex; align-items: center; gap: 0.3rem;
+  font-size: 0.75rem; color: var(--text-muted);
+  margin-top: 0.125rem; font-weight: 500;
 }
 
+/* Status Badge */
 .week-status-badge {
-  padding: 0.2rem 0.625rem;
+  padding: 0.25rem 0.75rem;
   border-radius: var(--radius-full);
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
 }
 
 .status-not_started { background: var(--bg-secondary); color: var(--text-muted); }
-.status-in_progress { background: rgba(245,158,11,0.15); color: var(--clr-amber-500); }
-.status-completed { background: rgba(16,185,129,0.15); color: var(--clr-emerald-500); }
+.status-in_progress { background: rgba(245,158,11,0.14); color: var(--clr-amber-500); border: 1px solid rgba(245,158,11,0.25); }
+.status-completed   { background: rgba(16,185,129,0.14); color: var(--clr-emerald-500); border: 1px solid rgba(16,185,129,0.25); }
 
+/* ---- Week Details (Expanded) ---- */
 .week-details {
   padding: 0 1.5rem 1.5rem;
   border-top: 1px solid var(--border-color);
   padding-top: 1.25rem;
+  animation: fadeInUp 0.25s var(--ease-out) both;
 }
 
+/* Sub-topics */
 .subtopic-tag {
-  padding: 0.25rem 0.625rem;
+  display: inline-flex;
+  padding: 0.25rem 0.6875rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-full);
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: 0.8125rem; font-weight: 500;
   color: var(--text-secondary);
+  transition: all var(--transition-fast);
 }
 
-.resources-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
+.subtopic-tag:hover {
+  border-color: var(--clr-indigo-400);
+  color: var(--clr-indigo-500);
+  background: rgba(99,102,241,0.06);
 }
 
-.resource-item {
-  display: flex;
-  align-items: center;
+/* Resources Grid */
+.curriculum-resources-section {
+  margin-top: 1rem;
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 0.75rem;
-  padding: 0.75rem;
+}
+
+.resource-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
   background: var(--bg-secondary);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
   text-decoration: none;
   color: var(--text-primary);
-  transition: all var(--transition-fast);
-  border: 1px solid transparent;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
 }
 
-.resource-item:hover {
-  border-color: var(--clr-indigo-400);
-  background: rgba(99,102,241,0.05);
-  transform: translateX(4px);
+.resource-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(99, 102, 241, 0.4);
 }
 
-.resource-icon {
-  font-size: 1.25rem;
-  width: 32px;
-  text-align: center;
+/* YouTube Specific Highlights */
+.resource-card-video {
+  border-left: 3px solid #ef4444;
+}
+
+.resource-card-video:hover {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.12);
+}
+
+.resource-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  transition: transform var(--transition-fast);
+}
+
+.resource-card:hover .resource-icon-box {
+  transform: scale(1.06);
+}
+
+.icon-type-video {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+}
+
+.youtube-svg-icon {
+  fill: #ef4444;
+}
+
+.icon-type-practice {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: var(--clr-emerald-500);
+}
+
+.icon-type-guide {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: rgba(168, 85, 247, 0.25);
+  color: #a855f7;
+}
+
+.icon-type-docs {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: #3b82f6;
+}
+
+.resource-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.resource-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.resource-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.badge-video {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.badge-practice {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--clr-emerald-500);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.badge-guide {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.badge-docs {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.resource-ext-icon {
+  color: var(--text-muted);
+  opacity: 0.6;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.resource-card:hover .resource-ext-icon {
+  opacity: 1;
+  transform: translate(2px, -2px);
+  color: var(--clr-indigo-500);
 }
 
 .resource-title {
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.empty-state { margin: 2rem auto; max-width: 600px; }
+.resource-domain {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ---- Progress Overview Sidebar ---- */
+.curriculum-sidebar {
+  position: sticky;
+  top: 80px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .week-header { padding: 1rem; }
+  .week-details { padding: 0 1rem 1.25rem; padding-top: 1rem; }
+  .week-num-badge { width: 40px; height: 40px; font-size: 0.8125rem; }
+}

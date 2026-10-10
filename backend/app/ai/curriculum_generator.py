@@ -80,12 +80,18 @@ def generate_curriculum_for_student(db: Session, student: Student) -> Optional[C
 
     # Create weekly topics
     for week_data in ai_response.get("roadmap", []):
+        topic_name = week_data.get("topic", "")
+        enriched_resources = get_curated_resources_for_topic(
+            topic_name, 
+            week_data.get("resources", [])
+        )
+
         week = CurriculumWeek(
             curriculum_id=curriculum.id,
             week_number=week_data.get("week", 1),
-            topic=week_data.get("topic", ""),
+            topic=topic_name,
             subtopics=week_data.get("subtopics", []),
-            resources=week_data.get("resources", []),
+            resources=enriched_resources,
             estimated_hours=week_data.get("estimated_hours", 10),
             difficulty=week_data.get("difficulty", "intermediate"),
             status="not_started",
@@ -106,6 +112,115 @@ def generate_curriculum_for_student(db: Session, student: Student) -> Optional[C
     return curriculum
 
 
+CURATED_RESOURCES_DB = {
+    "html": [
+        {"type": "video", "title": "HTML Full Course for Beginners (YouTube / freeCodeCamp)", "url": "https://www.youtube.com/results?search_query=HTML+full+course+tutorial+freecodecamp"},
+        {"type": "docs", "title": "MDN Web Docs - HTML Living Standard", "url": "https://developer.mozilla.org/en-US/docs/Web/HTML"},
+        {"type": "practice", "title": "W3Schools Interactive HTML Sandbox & Practice", "url": "https://www.w3schools.com/html/"},
+        {"type": "guide", "title": "Roadmap.sh Frontend & HTML Developer Guide", "url": "https://roadmap.sh/frontend"},
+    ],
+    "css": [
+        {"type": "video", "title": "CSS Full Course - Flexbox, Grid & Responsive Design (YouTube)", "url": "https://www.youtube.com/results?search_query=CSS+full+course+tutorial+freecodecamp"},
+        {"type": "docs", "title": "MDN Web Docs - CSS Reference & Selectors", "url": "https://developer.mozilla.org/en-US/docs/Web/CSS"},
+        {"type": "practice", "title": "W3Schools CSS Interactive Practice & Try-It", "url": "https://www.w3schools.com/css/"},
+        {"type": "guide", "title": "CSS-Tricks: Complete Visual Guide to Flexbox & Grid", "url": "https://css-tricks.com/snippets/css/a-guide-to-flexbox/"},
+    ],
+    "javascript": [
+        {"type": "video", "title": "JavaScript Full Course for Beginners (YouTube / Bro Code)", "url": "https://www.youtube.com/results?search_query=JavaScript+full+course+tutorial"},
+        {"type": "docs", "title": "MDN Web Docs - Modern JavaScript (ES6+)", "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript"},
+        {"type": "practice", "title": "freeCodeCamp JavaScript Algorithms & Data Structures", "url": "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/"},
+        {"type": "guide", "title": "JavaScript.info - The Modern JavaScript Tutorial", "url": "https://javascript.info/"},
+    ],
+    "react": [
+        {"type": "video", "title": "React JS Crash Course for Beginners (YouTube / Traversy Media)", "url": "https://www.youtube.com/results?search_query=React+crash+course+tutorial"},
+        {"type": "docs", "title": "Official React Documentation & Interactive Tutorials", "url": "https://react.dev/"},
+        {"type": "practice", "title": "W3Schools React Tutorial & Live Examples", "url": "https://www.w3schools.com/react/"},
+        {"type": "guide", "title": "Roadmap.sh React Developer Learning Path", "url": "https://roadmap.sh/react"},
+    ],
+    "rest apis": [
+        {"type": "video", "title": "REST API Concepts, HTTP Methods & Status Codes (YouTube)", "url": "https://www.youtube.com/results?search_query=REST+API+tutorial+for+beginners"},
+        {"type": "docs", "title": "MDN Web Docs - HTTP Methods & RESTful Architecture", "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods"},
+        {"type": "practice", "title": "Postman Learning Center & API Testing Sandbox", "url": "https://learning.postman.com/docs/getting-started/introduction/"},
+        {"type": "guide", "title": "RESTful API Tutorial - Design Principles & Best Practices", "url": "https://restfulapi.net/"},
+    ],
+    "git": [
+        {"type": "video", "title": "Git and GitHub for Beginners - Crash Course (YouTube)", "url": "https://www.youtube.com/results?search_query=Git+and+GitHub+for+Beginners+tutorial"},
+        {"type": "docs", "title": "Official Pro Git Book & Git Reference", "url": "https://git-scm.com/doc"},
+        {"type": "practice", "title": "Learn Git Branching - Interactive Visual Practice", "url": "https://learngitbranching.js.org/"},
+        {"type": "guide", "title": "GitHub Docs - Hello World & Workflow Guide", "url": "https://docs.github.com/en/get-started"},
+    ],
+    "sql": [
+        {"type": "video", "title": "SQL Tutorial - Full Database Course for Beginners (YouTube)", "url": "https://www.youtube.com/results?search_query=SQL+tutorial+full+course"},
+        {"type": "docs", "title": "PostgreSQL & MySQL Reference Documentation", "url": "https://www.postgresql.org/docs/"},
+        {"type": "practice", "title": "SQLBolt - Interactive Lessons in SQL Queries", "url": "https://sqlbolt.com/"},
+        {"type": "guide", "title": "W3Schools SQL Tutorial & Database Exercises", "url": "https://www.w3schools.com/sql/"},
+    ],
+    "node.js": [
+        {"type": "video", "title": "Node.js and Express.js Full Course (YouTube / freeCodeCamp)", "url": "https://www.youtube.com/results?search_query=Node.js+and+Express+full+course+tutorial"},
+        {"type": "docs", "title": "Official Node.js Documentation & Guides", "url": "https://nodejs.org/en/docs/"},
+        {"type": "practice", "title": "W3Schools Node.js Interactive Tutorial", "url": "https://www.w3schools.com/nodejs/"},
+        {"type": "guide", "title": "Roadmap.sh Node.js & Backend Developer Roadmap", "url": "https://roadmap.sh/nodejs"},
+    ],
+    "python": [
+        {"type": "video", "title": "Python for Beginners - Full Course (YouTube / Programming with Mosh)", "url": "https://www.youtube.com/results?search_query=Python+for+Beginners+full+course"},
+        {"type": "docs", "title": "Official Python 3 Documentation & Standard Library", "url": "https://docs.python.org/3/"},
+        {"type": "practice", "title": "W3Schools Python Tutorial & Practice Exercises", "url": "https://www.w3schools.com/python/"},
+        {"type": "guide", "title": "Real Python Tutorials & Architecture Deep Dives", "url": "https://realpython.com/"},
+    ],
+}
+
+
+def get_curated_resources_for_topic(topic: str, ai_resources: Optional[List[Dict]] = None) -> List[Dict]:
+    """Return comprehensive learning resources including YouTube video and interactive sites."""
+    import urllib.parse
+    cleaned_topic = topic.strip()
+    key = cleaned_topic.lower()
+
+    # 1. Match pre-curated resource database
+    for db_key, resources in CURATED_RESOURCES_DB.items():
+        if db_key == key or db_key in key or key in db_key:
+            return resources
+
+    # 2. Build high-quality dynamic links
+    encoded = urllib.parse.quote_plus(cleaned_topic)
+    default_resources = [
+        {
+            "type": "video",
+            "title": f"{cleaned_topic} Full Course & Video Tutorial (YouTube)",
+            "url": f"https://www.youtube.com/results?search_query={encoded}+tutorial+full+course",
+        },
+        {
+            "type": "docs",
+            "title": f"{cleaned_topic} Documentation Reference on DevDocs",
+            "url": f"https://devdocs.io/#q={encoded}",
+        },
+        {
+            "type": "practice",
+            "title": f"{cleaned_topic} Interactive Exercises & Practice (W3Schools)",
+            "url": f"https://www.google.com/search?q={encoded}+practice+tutorial+w3schools",
+        },
+        {
+            "type": "guide",
+            "title": f"{cleaned_topic} Architecture & Developer Roadmap (Roadmap.sh)",
+            "url": f"https://roadmap.sh/search?q={encoded}",
+        },
+    ]
+
+    # 3. If AI gave valid non-placeholder resources, merge with YouTube video
+    if ai_resources:
+        valid_ai = [
+            r for r in ai_resources
+            if r.get("url") and "example.com" not in r.get("url") and r.get("title")
+        ]
+        if valid_ai:
+            has_video = any(r.get("type") == "video" or "youtube" in str(r.get("url", "")) for r in valid_ai)
+            if not has_video:
+                return [default_resources[0]] + valid_ai
+            return valid_ai
+
+    return default_resources
+
+
 def _build_fallback_curriculum(career_title: str, gap_analysis: Dict) -> Dict:
     """Fallback curriculum if AI is unavailable."""
     priorities = gap_analysis.get("learning_priorities", [])
@@ -114,10 +229,8 @@ def _build_fallback_curriculum(career_title: str, gap_analysis: Dict) -> Dict:
         roadmap.append({
             "week": i,
             "topic": topic,
-            "subtopics": [f"Introduction to {topic}", f"Hands-on {topic} Practice"],
-            "resources": [
-                {"type": "docs", "title": f"{topic} Official Documentation", "url": f"https://www.google.com/search?q={topic}+tutorial"},
-            ],
+            "subtopics": [f"Introduction to {topic}", f"Core Principles of {topic}", f"Hands-on {topic} Practice"],
+            "resources": get_curated_resources_for_topic(topic),
             "estimated_hours": 10,
             "difficulty": "intermediate",
         })

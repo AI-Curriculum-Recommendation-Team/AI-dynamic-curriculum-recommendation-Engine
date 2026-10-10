@@ -117,3 +117,103 @@ export const adminService = {
 
   getStats: () => api.get<PlatformStats>('/admin/stats').then(r => r.data),
 };
+
+// ---- V2 Services ----
+export const v2Service = {
+  getAchievements: () =>
+    api.get<import('../types').Achievement[]>('/v2/achievements').then(r => r.data),
+
+  getWeeklyReport: () =>
+    api.get<import('../types').WeeklyReport>('/v2/reports/weekly').then(r => r.data),
+
+  getQuizHistory: () =>
+    api.get<import('../types').QuizAttempt[]>('/v2/quiz/history').then(r => r.data),
+
+  generateWeekQuiz: (week_id: number) =>
+    api.post<any>(`/v2/quiz/generate/${week_id}`).then(r => r.data),
+
+  submitQuiz: (quiz_id: number, answers: Record<string, string>, score_percentage?: number) =>
+    api.post<any>(`/v2/quiz/${quiz_id}/submit`, { answers, score_percentage }).then(r => r.data),
+
+  adaptCurriculum: (week_id: number, score_percentage: number) =>
+    api.post<any>('/v2/curriculum/adapt', { week_id, score_percentage }).then(r => r.data),
+};
+
+// ---- V3 Services ----
+export const documentService = {
+  upload: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<import('../types').DocumentItem>('/v3/documents/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data);
+  },
+
+  list: () =>
+    api.get<import('../types').DocumentItem[]>('/v3/documents').then(r => r.data),
+
+  delete: (id: number) =>
+    api.delete(`/v3/documents/${id}`).then(r => r.data),
+
+  reindex: (id: number) =>
+    api.post<import('../types').DocumentItem>(`/v3/documents/${id}/index`).then(r => r.data),
+};
+
+export const tutorService = {
+  startSession: (title?: string, curriculum_week_id?: number) =>
+    api.post<import('../types').ChatSession>('/v3/tutor/sessions', { title, curriculum_week_id }).then(r => r.data),
+
+  listSessions: () =>
+    api.get<import('../types').ChatSession[]>('/v3/tutor/sessions').then(r => r.data),
+
+  getHistory: (sessionId: number) =>
+    api.get<import('../types').ChatMessage[]>(`/v3/tutor/sessions/${sessionId}/history`).then(r => r.data),
+
+  sendMessage: (sessionId: number, message: string, topic?: string) =>
+    api.post<{
+      session_id: number;
+      user_message: import('../types').ChatMessage;
+      ai_message: import('../types').ChatMessage;
+      sources: import('../types').CitationSource[];
+    }>(`/v3/tutor/sessions/${sessionId}/message`, { message, topic }).then(r => r.data),
+
+  deleteSession: (sessionId: number) =>
+    api.delete(`/v3/tutor/sessions/${sessionId}`).then(r => r.data),
+};
+
+export const flashcardService = {
+  generateForWeek: (week_id: number) =>
+    api.post<import('../types').FlashcardDeck>(`/v3/flashcards/generate/${week_id}`).then(r => r.data),
+
+  generateCustom: (topic?: string, document_id?: number, count: number = 6) =>
+    api.post<import('../types').FlashcardDeck>('/v3/flashcards/generate-custom', { topic, document_id, count }).then(r => r.data),
+
+  list: () =>
+    api.get<import('../types').FlashcardDeck[]>('/v3/flashcards').then(r => r.data),
+
+  get: (id: number) =>
+    api.get<import('../types').FlashcardDeck>(`/v3/flashcards/${id}`).then(r => r.data),
+
+  toggleMaster: (itemId: number) =>
+    api.put<{ id: number; is_mastered: boolean }>(`/v3/flashcards/items/${itemId}/master`).then(r => r.data),
+
+  delete: (id: number) =>
+    api.delete(`/v3/flashcards/${id}`).then(r => r.data),
+};
+
+export const noteService = {
+  summarizeDocument: (documentId: number) =>
+    api.post<import('../types').StudentNote>(`/v3/notes/summarize/${documentId}`).then(r => r.data),
+
+  summarizeWeek: (weekId: number) =>
+    api.post<import('../types').StudentNote>(`/v3/notes/summarize-topic/${weekId}`).then(r => r.data),
+
+  list: () =>
+    api.get<import('../types').StudentNote[]>('/v3/notes').then(r => r.data),
+
+  get: (id: number) =>
+    api.get<import('../types').StudentNote>(`/v3/notes/${id}`).then(r => r.data),
+
+  delete: (id: number) =>
+    api.delete(`/v3/notes/${id}`).then(r => r.data),
+};

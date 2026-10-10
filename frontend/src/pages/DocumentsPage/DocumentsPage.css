@@ -1,0 +1,123 @@
+/* ============================================================
+   Documents Page — Premium Knowledge Base
+   ============================================================ */
+
+/* ---- Upload Dropzone ---- */
+.upload-dropzone {
+  border: 2px dashed var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  text-align: center;
+  transition: all var(--transition-base);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-dropzone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99,102,241,0.04) 0%, rgba(16,185,129,0.02) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.drag-over {
+  border-color: var(--clr-indigo-500);
+  background: rgba(99,102,241,0.04);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.08), var(--shadow-md);
+}
+
+.upload-dropzone:hover::before,
+.upload-dropzone.drag-over::before {
+  opacity: 1;
+}
+
+.upload-icon {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-xl);
+  background: rgba(99,102,241,0.12);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem;
+  color: var(--clr-indigo-500);
+  transition: all var(--transition-base);
+}
+
+.upload-dropzone:hover .upload-icon {
+  background: rgba(99,102,241,0.20);
+  transform: scale(1.08);
+}
+
+/* ---- Documents Grid ---- */
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ---- Document Card ---- */
+.doc-card {
+  padding: 1.375rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.doc-card:hover {
+  border-color: rgba(99,102,241,0.25);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.doc-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.doc-icon-wrap {
+  width: 46px; height: 46px;
+  border-radius: var(--radius-md);
+  background: rgba(99,102,241,0.12);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--clr-indigo-500);
+}
+
+.doc-title-wrap { flex: 1; min-width: 0; }
+
+.doc-title {
+  font-size: 0.9375rem; font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doc-meta {
+  font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;
+}
+
+/* ---- Doc Actions ---- */
+.doc-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .docs-grid { grid-template-columns: 1fr; }
+  .upload-dropzone { padding: 2rem 1.5rem; }
+}

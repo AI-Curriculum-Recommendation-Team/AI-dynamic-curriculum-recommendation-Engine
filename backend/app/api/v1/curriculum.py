@@ -7,7 +7,12 @@ from app.core.security import get_current_user
 from app.models.user import User
 from app.models.student import Student, Curriculum, CurriculumWeek
 from app.schemas.student import CurriculumOut, CurriculumGenerateRequest
-from app.ai.curriculum_generator import generate_curriculum_for_student, generate_topic_quiz, generate_weekly_report
+from app.ai.curriculum_generator import (
+    generate_curriculum_for_student,
+    generate_topic_quiz,
+    generate_weekly_report,
+    get_curated_resources_for_topic,
+)
 
 router = APIRouter(prefix="/curriculum", tags=["Curriculum"])
 
@@ -54,7 +59,7 @@ def get_my_curriculum(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Get the student's active curriculum."""
+    """Get the student's active curriculum, auto-enriching with YouTube and verified resources."""
     student = db.query(Student).filter(Student.user_id == current_user.id).first()
     if not student:
         raise HTTPException(status_code=404, detail="Student profile not found")
@@ -67,6 +72,20 @@ def get_my_curriculum(
     )
     if not curriculum:
         raise HTTPException(status_code=404, detail="No curriculum found. Please generate one first.")
+
+    # Auto-enrich weeks if resources are empty or lack video/docs
+    updated = False
+    for week in curriculum.weeks:
+        res = week.resources or []
+        has_video = any(isinstance(r, dict) and r.get("type") == "video" for r in res)
+        if len(res) <= 1 or not has_video:
+            week.resources = get_curated_resources_for_topic(week.topic, res)
+            updated = True
+
+    if updated:
+        db.commit()
+        db.refresh(curriculum)
+
     return curriculum
 
 
@@ -99,6 +118,7 @@ def get_roadmap(
             "estimated_hours": week.estimated_hours,
             "difficulty": week.difficulty,
             "status": progress.status if progress else "not_started",
+            "resources": week.resources or [],
         })
 
     return {
@@ -116,10 +136,18 @@ def get_resources(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Get learning resources for a specific curriculum week."""
+    """Get learning resources for a specific curriculum week, enriched with YouTube tutorials and docs."""
     week = db.query(CurriculumWeek).filter(CurriculumWeek.id == week_id).first()
     if not week:
         raise HTTPException(status_code=404, detail="Week not found")
+
+    res = week.resources or []
+    has_video = any(isinstance(r, dict) and r.get("type") == "video" for r in res)
+    if len(res) <= 1 or not has_video:
+        week.resources = get_curated_resources_for_topic(week.topic, res)
+        db.commit()
+        db.refresh(week)
+
     return {
         "topic": week.topic,
         "subtopics": week.subtopics,

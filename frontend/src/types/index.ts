@@ -105,6 +105,7 @@ export interface RoadmapWeek {
   estimated_hours: number;
   difficulty: string;
   status: 'not_started' | 'in_progress' | 'completed';
+  resources?: Resource[];
 }
 
 export interface RoadmapData {
@@ -176,4 +177,93 @@ export interface AuthResponse {
   access_token: string;
   token_type: string;
   user: User;
+}
+
+// ---- Version 2 Types ----
+export interface Achievement {
+  id: number;
+  badge_key: string;
+  badge_name: string;
+  description: string;
+  icon: string;
+  earned_at: string;
+}
+
+export interface WeeklyReport {
+  id?: number;
+  week_number: number;
+  report: string;
+  completion_percentage: number;
+  generated_at?: string;
+}
+
+export interface QuizAttempt {
+  id: number;
+  quiz_id: number;
+  score: number;
+  action_taken: string;
+  weak_concepts: string[];
+  taken_at: string;
+}
+
+// ---- Version 3 Types ----
+export interface DocumentItem {
+  id: number;
+  filename: string;
+  file_size: number;
+  mime_type: string;
+  is_indexed: boolean;
+  chunk_count: number;
+  uploaded_at: string;
+}
+
+export interface CitationSource {
+  source_id?: number;
+  filename: string;
+  chunk_index: number;
+  snippet: string;
+}
+
+export interface ChatMessage {
+  id: number;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  source_chunks?: CitationSource[];
+  created_at: string;
+}
+
+export interface ChatSession {
+  id: number;
+  title: string;
+  curriculum_week_id?: number;
+  started_at: string;
+  message_count?: number;
+}
+
+export interface FlashcardItem {
+  id: number;
+  front_text: string;
+  back_text: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  is_mastered: boolean;
+}
+
+export interface FlashcardDeck {
+  id: number;
+  title: string;
+  topic?: string;
+  source_type: 'curriculum' | 'document' | 'custom';
+  source_id?: number;
+  created_at: string;
+  items: FlashcardItem[];
+}
+
+export interface StudentNote {
+  id: number;
+  title: string;
+  summary_text: string;
+  key_takeaways: string[];
+  document_id?: number;
+  curriculum_week_id?: number;
+  generated_at: string;
 }

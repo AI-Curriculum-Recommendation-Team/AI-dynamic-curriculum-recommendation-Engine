@@ -8,8 +8,10 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
     PROJECT_NAME: str = "AI Curriculum Recommendation Engine"
-    VERSION: str = "1.0.0"
+    VERSION: str = "3.0.0"
     API_V1_STR: str = "/api/v1"
+    API_V2_STR: str = "/api/v2"
+    API_V3_STR: str = "/api/v3"
 
     # Database
     DATABASE_URL: str = "postgresql://curriculum_user:curriculum_pass@localhost:5432/curriculum_db"

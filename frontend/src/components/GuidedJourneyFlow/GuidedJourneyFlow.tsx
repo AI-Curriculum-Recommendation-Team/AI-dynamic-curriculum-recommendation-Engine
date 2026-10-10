@@ -73,7 +73,7 @@ export default function GuidedJourneyFlow({ currentStep, careerTitle, className 
           const Icon = s.icon;
 
           return (
-            <div key={s.step} className="journey-step-item-wrap">
+            <div key={s.step} className="journey-step-segment">
               <Link
                 to={s.href}
                 className={`journey-step-node ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}`}
