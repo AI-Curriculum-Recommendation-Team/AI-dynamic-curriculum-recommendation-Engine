@@ -1,0 +1,51 @@
+services:
+  # ============================================================
+  # 1. Backend Web Service (FastAPI)
+  # ============================================================
+  - type: web
+    name: curriculum-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        sync: false # Set to your Cloud PostgreSQL URL (Supabase/Neon/Render)
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false # Set to your frontend onrender.com URL once created
+      - key: BACKEND_CORS_ORIGINS
+        value: '["http://localhost:5173"]'
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+
+  # ============================================================
+  # 2. Frontend Static Site (React + Vite)
+  # ============================================================
+  - type: web
+    name: curriculum-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    plan: free
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false # Set to https://curriculum-backend.onrender.com
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false

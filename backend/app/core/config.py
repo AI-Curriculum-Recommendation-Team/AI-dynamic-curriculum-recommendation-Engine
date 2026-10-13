@@ -41,10 +41,21 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> List[str]:
+        origins = []
         try:
-            return json.loads(self.BACKEND_CORS_ORIGINS)
+            val = self.BACKEND_CORS_ORIGINS.strip()
+            if val.startswith("["):
+                origins = json.loads(val)
+            else:
+                origins = [o.strip() for o in val.split(",") if o.strip()]
         except Exception:
-            return ["http://localhost:5173"]
+            origins = ["http://localhost:5173"]
+
+        if self.FRONTEND_URL and self.FRONTEND_URL.strip():
+            url = self.FRONTEND_URL.strip().rstrip("/")
+            if url not in origins:
+                origins.append(url)
+        return origins
 
     class Config:
         env_file = ".env"
