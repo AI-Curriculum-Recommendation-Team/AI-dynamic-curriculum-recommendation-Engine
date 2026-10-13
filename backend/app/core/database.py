@@ -13,9 +13,11 @@ def normalize_database_url(url: str) -> str:
     if not url:
         return url
     if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql://", 1)
+        url = url.replace("postgres://", "postgresql+psycopg2://", 1)
+    elif url.startswith("postgresql://"):
+        url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
-    if url.startswith("postgresql://") and "@" in url:
+    if (url.startswith("postgresql://") or url.startswith("postgresql+psycopg2://")) and "@" in url:
         try:
             scheme, rest = url.split("://", 1)
             credentials, host_db = rest.rsplit("@", 1)
