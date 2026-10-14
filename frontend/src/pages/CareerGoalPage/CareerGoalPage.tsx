@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { careerService, studentService } from '../../services';
+import { careerService, studentService, resumeService } from '../../services';
 import { useStudentStore } from '../../store';
-import type { CareerGoal } from '../../types';
+import type { CareerGoal, CareerMatchAnalysis } from '../../types';
 import GuidedJourneyFlow from '../../components/GuidedJourneyFlow/GuidedJourneyFlow';
-import { ArrowRight, Check, Target } from 'lucide-react';
+import { ArrowRight, Check, Target, Sparkles, UploadCloud, FileText } from 'lucide-react';
 import './CareerGoalPage.css';
 
 const CAREER_ICONS: Record<string, string> = {
@@ -23,6 +23,8 @@ export default function CareerGoalPage() {
   const [selected, setSelected] = useState<number | null>(student?.career_goal_id || null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [matching, setMatching] = useState(false);
+  const [matchAnalysis, setMatchAnalysis] = useState<CareerMatchAnalysis | null>(null);
 
   useEffect(() => {
     careerService.listCareers()
@@ -41,6 +43,35 @@ export default function CareerGoalPage() {
 
   const handleSelect = (id: number) => {
     setSelected(id);
+  };
+
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.match(/\.(pdf|txt)$/i)) {
+      toast.error('Please upload a PDF or TXT resume file');
+      return;
+    }
+
+    setMatching(true);
+    const toastId = toast.loading('AI analyzing resume & evaluating career trajectories...');
+    try {
+      const result = await resumeService.analyzeCareerMatch(file);
+      setMatchAnalysis(result);
+      if (result.top_career_id) {
+        setSelected(result.top_career_id);
+      }
+      const topCareer = result.career_matches?.find(m => m.career_id === result.top_career_id);
+      toast.success(
+        `AI Match complete! Top recommended role: ${topCareer?.title || 'Selected'} (${topCareer?.match_percentage || 85}% match)`,
+        { id: toastId }
+      );
+    } catch {
+      toast.error('Failed to analyze resume. Please try again or select manually.', { id: toastId });
+    } finally {
+      setMatching(false);
+    }
   };
 
   const handleConfirm = async () => {
@@ -87,20 +118,67 @@ export default function CareerGoalPage() {
           </div>
         ) : (
           <>
+            {/* AI Resume Matcher Dropzone */}
+            <div className="resume-career-matcher animate-fade-up">
+              <div className="resume-matcher-header">
+                <div className="resume-matcher-title">
+                  <Sparkles size={18} className="text-accent" />
+                  <span>Not Sure? Let AI Match Your Career From Your Resume</span>
+                </div>
+                {matchAnalysis && (
+                  <span className="badge badge-emerald text-xs flex items-center gap-1">
+                    <FileText size={12} /> {matchAnalysis.skills_detected} Skills Extracted for {matchAnalysis.candidate_name}
+                  </span>
+                )}
+              </div>
+
+              <label className="resume-matcher-dropzone">
+                <input
+                  type="file"
+                  accept=".pdf,.txt"
+                  onChange={handleResumeUpload}
+                  style={{ display: 'none' }}
+                  disabled={matching}
+                />
+                <UploadCloud size={28} className="text-accent mb-2" />
+                <p className="text-sm font-semibold text-primary">
+                  {matching ? 'Analyzing Resume with AI...' : 'Upload Resume (PDF or TXT) to Auto-Match Career Goal'}
+                </p>
+                <p className="text-xs text-muted mt-1">
+                  Gemini AI parses your skills, compares them to job market benchmarks, and recommends your best target role.
+                </p>
+              </label>
+
+              {matchAnalysis && matchAnalysis.headline && (
+                <div className="mt-3 p-2.5 rounded bg-surface border border-subtle text-xs text-secondary">
+                  <strong>AI Profile Summary:</strong> {matchAnalysis.headline}
+                </div>
+              )}
+            </div>
+
             <div className="career-select-grid animate-fade-up delay-100">
               {careers.map((career, i) => {
                 const isSelected = selected === career.id;
+                const match = matchAnalysis?.career_matches?.find(m => m.career_id === career.id);
+                const isTopMatch = matchAnalysis?.top_career_id === career.id;
+
                 return (
                   <div
                     key={career.id}
                     role="button"
                     tabIndex={0}
-                    className={`career-select-card card-3d ${isSelected ? 'selected' : ''}`}
+                    className={`career-select-card card-3d ${isSelected ? 'selected' : ''} ${isTopMatch ? 'ai-recommended' : ''}`}
                     style={{ animationDelay: `${i * 60}ms`, cursor: 'pointer' }}
                     onClick={() => handleSelect(career.id)}
                     onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleSelect(career.id)}
                     id={`career-${career.id}`}
                   >
+                    {match && (
+                      <div className="career-match-badge">
+                        <Sparkles size={11} /> {match.match_percentage}% AI Match
+                      </div>
+                    )}
+
                     <div className="career-select-check">
                       {isSelected ? (
                         <div className="career-check-active">
@@ -117,6 +195,12 @@ export default function CareerGoalPage() {
 
                     <h3 className="career-select-title">{career.title}</h3>
                     <p className="career-select-desc text-sm text-secondary">{career.description}</p>
+
+                    {match && (
+                      <p className="text-xs text-accent font-medium mb-3 italic">
+                        {match.recommendation_reason}
+                      </p>
+                    )}
 
                     <div className="career-select-skills mt-4">
                       <span className="text-xs text-muted mb-1 block font-semibold">Core Competencies:</span>

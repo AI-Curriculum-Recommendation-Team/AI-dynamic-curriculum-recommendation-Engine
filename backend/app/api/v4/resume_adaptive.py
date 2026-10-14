@@ -6,15 +6,92 @@ from typing import Dict, Any
 from app.core.database import get_db
 from app.api.v1.auth import get_current_user
 from app.models.user import User
-from app.models.student import Student, Curriculum, CurriculumWeek
+from app.models.student import Student, Curriculum, CurriculumWeek, CareerGoal
 from app.models.v4_models import Resume, ResumeSkill, CurriculumRecalibration
 from app.ai.rag_engine import extract_text_from_file
-from app.ai.resume_curriculum_engine import parse_resume_text_with_ai, generate_resume_accelerated_curriculum
+from app.ai.resume_curriculum_engine import (
+    parse_resume_text_with_ai,
+    generate_resume_accelerated_curriculum,
+    match_careers_from_resume,
+)
 
 router = APIRouter(prefix="/resume", tags=["V4 Resume Curriculum Fast-Tracking"])
 
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads", "resumes")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+@router.post("/analyze-career-match")
+async def analyze_resume_for_career_matching(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Parses resume and matches against all available database Career Goals to recommend the ideal role.
+    """
+    student = db.query(Student).filter(Student.user_id == current_user.id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student profile not found")
+
+    filename = file.filename or "resume.pdf"
+    file_path = os.path.join(UPLOAD_DIR, f"{student.id}_{filename}")
+
+    content = await file.read()
+    with open(file_path, "wb") as f:
+        f.write(content)
+
+    raw_text = extract_text_from_file(file_path, file.content_type or "application/pdf")
+    if not raw_text or len(raw_text.strip()) < 30:
+        raw_text = "Technical student with programming, algorithms, and software development foundations."
+
+    parsed_profile = parse_resume_text_with_ai(raw_text)
+
+    # Save Resume record
+    resume = Resume(
+        student_id=student.id,
+        filename=filename,
+        file_path=file_path,
+        raw_text=raw_text[:10000],
+        parsed_data=parsed_profile,
+    )
+    db.add(resume)
+    db.flush()
+
+    extracted_skills = parsed_profile.get("skills", [])
+    for sk in extracted_skills:
+        skill_record = ResumeSkill(
+            resume_id=resume.id,
+            student_id=student.id,
+            skill_name=sk.get("name", "Skill"),
+            proficiency_level=sk.get("level", "intermediate"),
+            confidence_score=sk.get("confidence", 0.85),
+            matched_curriculum_topic=sk.get("category"),
+        )
+        db.add(skill_record)
+
+    all_careers = db.query(CareerGoal).all()
+    career_dicts = [
+        {
+            "id": c.id,
+            "title": c.title,
+            "description": c.description,
+            "required_skills": c.required_skills or [],
+        }
+        for c in all_careers
+    ]
+
+    match_result = match_careers_from_resume(parsed_profile, career_dicts)
+    db.commit()
+
+    return {
+        "candidate_name": parsed_profile.get("candidate_name", "Student"),
+        "headline": parsed_profile.get("headline_or_summary", ""),
+        "skills_detected": len(extracted_skills),
+        "skills": extracted_skills,
+        "top_career_id": match_result.get("top_career_id"),
+        "career_matches": match_result.get("career_matches", []),
+    }
 
 
 @router.post("/upload-and-adapt")

@@ -134,3 +134,81 @@ Return ONLY a valid JSON object with the following structure:
             }
         ],
     }
+
+
+def match_careers_from_resume(
+    parsed_resume: Dict[str, Any],
+    career_goals: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """
+    Evaluates detected resume skills against all available career goals and ranks them by match score.
+    """
+    resume_skills = [s.get("name", "").lower().strip() for s in parsed_resume.get("skills", [])]
+    
+    # AI-assisted evaluation
+    prompt = f"""
+You are an expert AI Career Advisor.
+Candidate Profile:
+- Summary: {parsed_resume.get("headline_or_summary", "")}
+- Detected Skills: {resume_skills}
+- Experience: {parsed_resume.get("years_of_experience", 0)} years
+
+Available Career Paths:
+{[{"id": c["id"], "title": c["title"], "required_skills": c.get("required_skills", [])} for c in career_goals]}
+
+Task:
+Calculate a match score (0 to 100%) for EACH career path based on the candidate's skills and trajectory.
+Highlight matched skills and missing skills.
+
+Return ONLY a valid JSON object:
+{{
+  "top_career_id": <int>,
+  "career_matches": [
+    {{
+      "career_id": <int>,
+      "title": "<title>",
+      "match_percentage": <0-100 int>,
+      "matched_skills": ["Skill1", "Skill2"],
+      "missing_skills": ["MissingSkill1", "MissingSkill2"],
+      "recommendation_reason": "Why candidate is or isn't well suited for this role"
+    }}
+  ]
+}}
+"""
+    result = generate_json_content(prompt)
+    if result and "career_matches" in result and isinstance(result["career_matches"], list):
+        return result
+
+    # Robust deterministic fallback
+    ranked_matches = []
+    for c in career_goals:
+        c_req = c.get("required_skills") or []
+        req_names = []
+        for r in c_req:
+            if isinstance(r, dict):
+                req_names.append(r.get("skill", "").lower().strip())
+            else:
+                req_names.append(str(r).lower().strip())
+
+        matched = [s for s in resume_skills if any(r in s or s in r for r in req_names)]
+        missing = [r for r in req_names if not any(r in s or s in r for s in resume_skills)]
+
+        match_pct = int(min(98, max(30, (len(matched) / max(len(req_names), 1)) * 100 + (10 if len(matched) > 0 else 0))))
+
+        ranked_matches.append({
+            "career_id": c["id"],
+            "title": c["title"],
+            "match_percentage": match_pct,
+            "matched_skills": matched[:5],
+            "missing_skills": missing[:5],
+            "recommendation_reason": f"Matches {len(matched)} of {len(req_names)} essential competencies from your resume.",
+        })
+
+    ranked_matches.sort(key=lambda x: x["match_percentage"], reverse=True)
+    top_id = ranked_matches[0]["career_id"] if ranked_matches else (career_goals[0]["id"] if career_goals else 1)
+
+    return {
+        "top_career_id": top_id,
+        "career_matches": ranked_matches,
+    }
+

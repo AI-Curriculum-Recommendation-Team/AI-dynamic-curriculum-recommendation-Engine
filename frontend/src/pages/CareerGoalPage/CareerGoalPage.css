@@ -10,6 +10,80 @@
   margin-top: 1.25rem;
 }
 
+/* ---- AI Resume Career Matcher ---- */
+.resume-career-matcher {
+  margin: 1.5rem 0 2rem 0;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border: 1.5px dashed rgba(99, 102, 241, 0.4);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.resume-career-matcher:hover {
+  border-color: var(--clr-indigo-500);
+  box-shadow: var(--shadow-md), 0 0 15px rgba(99, 102, 241, 0.15);
+}
+
+.resume-matcher-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.resume-matcher-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.resume-matcher-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(99, 102, 241, 0.04);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.resume-matcher-dropzone:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.career-match-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  z-index: 2;
+}
+
+.career-select-card.ai-recommended {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25) !important;
+}
+
 /* ---- Career Card ---- */
 .career-select-card {
   padding: 1.35rem 1.25rem;

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, Clock, Circle, PlayCircle, Zap, Sparkles, ExternalLink, RefreshCw, History } from 'lucide-react';
+import { CheckCircle2, Clock, Circle, PlayCircle, Zap, Sparkles, ExternalLink, RefreshCw, History, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { curriculumService, progressService } from '../../services';
 import type { RoadmapData, CurriculumRecalibration } from '../../types';
 import TopicQuizModal from '../../components/TopicQuizModal/TopicQuizModal';
 import GuidedJourneyFlow from '../../components/GuidedJourneyFlow/GuidedJourneyFlow';
+import DossierModal from '../../components/DossierModal/DossierModal';
 import './RoadmapPage.css';
 
 const STATUS_CONFIG = {
@@ -21,6 +22,7 @@ export default function RoadmapPage() {
   const [recalibrating, setRecalibrating] = useState(false);
   const [recalibrations, setRecalibrations] = useState<CurriculumRecalibration[]>([]);
   const [showRecalHistory, setShowRecalHistory] = useState(false);
+  const [dossierOpen, setDossierOpen] = useState(false);
 
   const fetchRoadmap = () => {
     curriculumService.getRoadmap()
@@ -122,6 +124,14 @@ export default function RoadmapPage() {
             </p>
           </div>
           <div className="flex gap-3 flex-wrap items-center">
+            <button
+              className="btn btn-secondary"
+              onClick={() => setDossierOpen(true)}
+              title="Export complete academic dossier report"
+              id="export-dossier-btn"
+            >
+              <FileText size={15} /> Export Dossier
+            </button>
             <button
               className="btn btn-secondary"
               onClick={handleOpenHistory}
@@ -343,6 +353,12 @@ export default function RoadmapPage() {
             </div>
           </div>
         )}
+
+        {/* Printable Academic & Placement Dossier Export Modal */}
+        <DossierModal
+          isOpen={dossierOpen}
+          onClose={() => setDossierOpen(false)}
+        />
       </div>
     </div>
   );

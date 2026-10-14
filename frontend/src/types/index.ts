@@ -369,3 +369,22 @@ export interface CareerReadinessMetrics {
   recommended_action: string;
 }
 
+export interface CareerMatchItem {
+  career_id: number;
+  title: string;
+  match_percentage: number;
+  matched_skills: string[];
+  missing_skills: string[];
+  recommendation_reason: string;
+}
+
+export interface CareerMatchAnalysis {
+  candidate_name: string;
+  headline: string;
+  skills_detected: number;
+  skills: ResumeSkillItem[];
+  top_career_id: number;
+  career_matches: CareerMatchItem[];
+}
+
+

@@ -1,0 +1,188 @@
+/* ============================================================
+   Curriculum & Placement Dossier Modal (Printable PDF Report)
+   ============================================================ */
+
+.dossier-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.dossier-modal-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.dossier-modal-header {
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-surface);
+}
+
+.dossier-modal-body {
+  padding: 2rem 2.5rem;
+  overflow-y: auto;
+  font-family: inherit;
+  color: var(--text-primary);
+}
+
+.dossier-report-sheet {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+}
+
+.dossier-sheet-header {
+  border-bottom: 2px solid var(--clr-indigo-500);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.dossier-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.dossier-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.dossier-badge-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.dossier-grid-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.dossier-stat-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: center;
+}
+
+.dossier-stat-num {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--clr-indigo-500);
+}
+
+.dossier-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.dossier-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.75rem 0 1rem 0;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+.dossier-syllabus-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.dossier-syllabus-table th,
+.dossier-syllabus-table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+}
+
+.dossier-syllabus-table th {
+  background: var(--bg-surface);
+  font-weight: 700;
+}
+
+.dossier-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* ---- Print Stylesheet ---- */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .dossier-report-sheet,
+  .dossier-report-sheet * {
+    visibility: visible;
+  }
+  .dossier-report-sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .dossier-modal-overlay,
+  .dossier-modal-container {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    position: static !important;
+    inset: auto !important;
+    padding: 0 !important;
+  }
+  .dossier-modal-header,
+  .dossier-actions,
+  .dossier-modal-close-btn {
+    display: none !important;
+  }
+  .dossier-stat-num {
+    color: #4338ca !important;
+  }
+  .dossier-syllabus-table th,
+  .dossier-syllabus-table td {
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+  }
+}

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Target, Building2, Sparkles, RefreshCw } from 'lucide-react';
+import { Target, Building2, Sparkles, RefreshCw, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { readinessService, companyService } from '../../services';
 import type { CareerReadinessMetrics, CompanyProfile } from '../../types';
+import DossierModal from '../../components/DossierModal/DossierModal';
 import './ReadinessPage.css';
 
 export default function ReadinessPage() {
@@ -11,6 +12,7 @@ export default function ReadinessPage() {
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
+  const [dossierOpen, setDossierOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -67,15 +69,25 @@ export default function ReadinessPage() {
     <div className="page-container">
       <div className="container">
         {/* Header */}
-        <div className="page-header animate-fade-up">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="badge badge-indigo">Version 4 Dynamic Matrix</span>
-            <span className="badge badge-emerald">Placement Aligned</span>
+        <div className="page-header animate-fade-up flex justify-between items-start flex-wrap gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="badge badge-indigo">Version 4 Dynamic Matrix</span>
+              <span className="badge badge-emerald">Placement Aligned</span>
+            </div>
+            <h1 className="page-title">Career Readiness & Skill Gap Matrix</h1>
+            <p className="page-subtitle">
+              Real-time multi-dimensional scoring and live curriculum alignment with target companies.
+            </p>
           </div>
-          <h1 className="page-title">Career Readiness & Skill Gap Matrix</h1>
-          <p className="page-subtitle">
-            Real-time multi-dimensional scoring and live curriculum alignment with target companies.
-          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-glow flex items-center gap-2"
+            onClick={() => setDossierOpen(true)}
+            id="export-readiness-dossier-btn"
+          >
+            <FileText size={16} /> Export Placement Dossier
+          </button>
         </div>
 
         <div className="readiness-grid">
@@ -216,6 +228,12 @@ export default function ReadinessPage() {
             </div>
           </div>
         </div>
+
+        {/* Placement Dossier Export Modal */}
+        <DossierModal
+          isOpen={dossierOpen}
+          onClose={() => setDossierOpen(false)}
+        />
       </div>
     </div>
   );

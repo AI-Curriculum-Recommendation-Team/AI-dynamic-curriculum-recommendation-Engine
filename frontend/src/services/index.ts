@@ -258,6 +258,14 @@ export const resumeService = {
     }).then(r => r.data);
   },
 
+  analyzeCareerMatch: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<import('../types').CareerMatchAnalysis>('/v4/resume/analyze-career-match', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data);
+  },
+
   getLatest: () =>
     api.get<import('../types').ResumeProfile>('/v4/resume/latest').then(r => r.data),
 };
