@@ -283,7 +283,7 @@ export default function DashboardPage() {
               </div>
               <div className="v4-readiness-title-text">
                 <div className="v4-readiness-badges">
-                  <span className="badge badge-indigo text-xs">Version 4 Placement Alignment</span>
+                  <span className="badge badge-indigo text-xs">Placement Readiness</span>
                   {readinessMetrics?.target_company && (
                     <span className="badge badge-emerald text-xs flex items-center gap-1">
                       <Building2 size={12} /> {readinessMetrics.target_company.company_name} ({readinessMetrics.target_company.tier})
@@ -598,7 +598,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center mb-4">
             <div>
               <span className="badge badge-purple text-xs mb-1 block" style={{ width: 'fit-content' }}>
-                Version 3 AI Intelligence Hub
+                AI Intelligence Hub
               </span>
               <h2 className="text-lg font-bold">Interactive Learning & Knowledge Suite</h2>
               <p className="text-xs text-muted">Grounded RAG tutoring, vector PDF indexing, flashcards & notes</p>
@@ -685,7 +685,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center mb-4">
             <div>
               <span className="badge badge-amber text-xs mb-1 block" style={{ width: 'fit-content' }}>
-                Version 2 Gamification & Rewards
+                Gamification & Rewards
               </span>
               <h2 className="text-lg font-bold">Earned Badges & Achievements ({achievements.length})</h2>
               <p className="text-xs text-muted">Milestones unlocked along your curriculum journey</p>
