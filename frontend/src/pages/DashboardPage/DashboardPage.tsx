@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   BookOpen, Target, TrendingUp, Award, ArrowRight, 
-  RefreshCw, Sparkles, Compass, CheckCircle2, Clock 
+  RefreshCw, Sparkles, Compass, CheckCircle2, Clock, Code2, Building2, ShieldCheck
 } from 'lucide-react';
 import { Doughnut, Bar, Radar } from 'react-chartjs-2';
 import {
@@ -11,11 +11,12 @@ import {
   Filler, Tooltip, Legend
 } from 'chart.js';
 import toast from 'react-hot-toast';
-import { studentService, curriculumService, progressService, assessmentService, v2Service } from '../../services';
+import { studentService, curriculumService, progressService, assessmentService, v2Service, readinessService, resumeService } from '../../services';
 import { useAuthStore, useStudentStore } from '../../store';
-import type { ProgressSummary, Curriculum, AssessmentResult, Achievement } from '../../types';
+import type { ProgressSummary, Curriculum, AssessmentResult, Achievement, CareerReadinessMetrics, ResumeProfile } from '../../types';
 import GuidedJourneyFlow from '../../components/GuidedJourneyFlow/GuidedJourneyFlow';
 import type { JourneyStep } from '../../components/GuidedJourneyFlow/GuidedJourneyFlow';
+import CertificateModal from '../../components/CertificateModal/CertificateModal';
 import { Bot, FileText, Layers } from 'lucide-react';
 import './DashboardPage.css';
 
@@ -31,6 +32,9 @@ export default function DashboardPage() {
   const [curriculum, setCurriculum] = useState<Curriculum | null>(null);
   const [latestAssessment, setLatestAssessment] = useState<AssessmentResult | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [readinessMetrics, setReadinessMetrics] = useState<CareerReadinessMetrics | null>(null);
+  const [resumeProfile, setResumeProfile] = useState<ResumeProfile | null>(null);
+  const [certModalOpen, setCertModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [aiReport, setAiReport] = useState<string | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
@@ -51,18 +55,22 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const [profRes, progRes, assessRes, curRes, achRes] = await Promise.allSettled([
+        const [profRes, progRes, assessRes, curRes, achRes, readyRes, resProfRes] = await Promise.allSettled([
           studentService.getProfile(),
           progressService.getSummary(),
           assessmentService.getLatestResult(),
           curriculumService.getMyCurriculum(),
           v2Service.getAchievements(),
+          readinessService.getMetrics(),
+          resumeService.getLatest(),
         ]);
 
         if (profRes.status === 'fulfilled') setStudent(profRes.value);
         if (progRes.status === 'fulfilled') setSummary(progRes.value);
         if (assessRes.status === 'fulfilled') setLatestAssessment(assessRes.value);
         if (achRes.status === 'fulfilled') setAchievements(achRes.value);
+        if (readyRes.status === 'fulfilled') setReadinessMetrics(readyRes.value);
+        if (resProfRes.status === 'fulfilled') setResumeProfile(resProfRes.value);
         if (curRes.status === 'fulfilled') {
           setCurriculum(curRes.value);
           // Fetch coach report if curriculum exists
@@ -263,6 +271,115 @@ export default function DashboardPage() {
               {summary ? `${summary.completion_percentage.toFixed(0)}%` : '0%'}
             </div>
             <div className="stat-label">Journey Completion</div>
+          </div>
+        </div>
+
+        {/* Version 4: Real-Time Career Placement & Target Company Benchmark Widget */}
+        <div className="card-3d v4-readiness-dashboard-card animate-fade-up delay-180 mt-6">
+          <div className="flex justify-between items-center flex-wrap gap-3 pb-3 border-b border-color">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-indigo-500/15 text-indigo-400">
+                <ShieldCheck size={22} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="badge badge-indigo text-xs">Version 4 Placement Alignment</span>
+                  {readinessMetrics?.target_company && (
+                    <span className="badge badge-emerald text-xs flex items-center gap-1">
+                      <Building2 size={12} /> {readinessMetrics.target_company.company_name} ({readinessMetrics.target_company.tier})
+                    </span>
+                  )}
+                  {resumeProfile?.has_resume && (
+                    <span className="badge badge-purple text-xs">
+                      Resume Fast-Tracked ({resumeProfile.skills?.length || 0} Skills)
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-base font-bold text-primary mt-1">
+                  Target Role: {student?.career_goal?.title || 'Software Engineering'} Placement Index
+                </h3>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm flex items-center gap-1.5"
+                onClick={() => setCertModalOpen(true)}
+                id="open-cert-modal-btn"
+                title="Generate your AI verified Curriculum & Placement Readiness Certificate"
+              >
+                <Award size={14} className="text-amber-400" /> View Placement Certificate
+              </button>
+              <Link to="/readiness" className="btn btn-primary btn-sm flex items-center gap-1.5">
+                <Target size={14} /> Full Skill Gap Matrix
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 items-center">
+            {/* Overall Score */}
+            <div className="flex items-center gap-3.5 p-3 rounded-lg bg-surface border border-subtle">
+              <div className="text-center shrink-0">
+                <div className="text-2xl font-extrabold font-mono text-indigo-400">
+                  {readinessMetrics?.overall_score ?? 80}%
+                </div>
+                <div className="text-[10px] uppercase font-bold text-muted">Placement Index</div>
+              </div>
+              <div className="text-xs text-secondary leading-snug">
+                Target Benchmark: <strong className="text-primary">{readinessMetrics?.benchmark_target ?? 80}%</strong>. Calibrated to {readinessMetrics?.target_company?.company_name || 'Tier-1 Standards'}.
+              </div>
+            </div>
+
+            {/* Curriculum + Quiz Progress */}
+            <div className="p-3 rounded-lg bg-surface border border-subtle text-xs">
+              <div className="flex justify-between text-muted mb-1">
+                <span>Curriculum Mastery</span>
+                <strong className="text-primary">{readinessMetrics?.curriculum_completion_score ?? 0}%</strong>
+              </div>
+              <div className="progress-bar-track mb-2" style={{ height: 4 }}>
+                <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.curriculum_completion_score ?? 0}%` }} />
+              </div>
+              <div className="flex justify-between text-muted mb-1">
+                <span>Quiz Mastery</span>
+                <strong className="text-primary">{readinessMetrics?.quiz_mastery_score ?? 0}%</strong>
+              </div>
+              <div className="progress-bar-track" style={{ height: 4 }}>
+                <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.quiz_mastery_score ?? 0}%`, background: 'var(--clr-amber-500)' }} />
+              </div>
+            </div>
+
+            {/* Coding Lab + Stack Match */}
+            <div className="p-3 rounded-lg bg-surface border border-subtle text-xs">
+              <div className="flex justify-between text-muted mb-1">
+                <span>Coding Challenges</span>
+                <strong className="text-primary">{readinessMetrics?.coding_score ?? 0}%</strong>
+              </div>
+              <div className="progress-bar-track mb-2" style={{ height: 4 }}>
+                <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.coding_score ?? 0}%`, background: 'var(--clr-emerald-500)' }} />
+              </div>
+              <div className="flex justify-between text-muted mb-1">
+                <span>Company Tech Match</span>
+                <strong className="text-primary">{readinessMetrics?.company_match_percentage ?? 0}%</strong>
+              </div>
+              <div className="progress-bar-track" style={{ height: 4 }}>
+                <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.company_match_percentage ?? 0}%`, background: 'linear-gradient(90deg, #6366f1, #a855f7)' }} />
+              </div>
+            </div>
+
+            {/* Quick Coding Lab CTA */}
+            <div className="flex flex-col gap-2 p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-xs">
+              <div className="flex items-center gap-1.5 font-bold text-primary">
+                <Code2 size={15} className="text-indigo-400" />
+                <span>Hands-On Coding Lab</span>
+              </div>
+              <p className="text-[11px] text-secondary leading-snug">
+                Practice topic algorithms with automated unit tests & AI complexity analysis.
+              </p>
+              <Link to="/coding-lab" className="btn btn-secondary btn-xs flex items-center justify-center gap-1 mt-1">
+                Launch Coding Lab <ArrowRight size={12} />
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -586,6 +703,13 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+        {/* Certificate Modal */}
+        <CertificateModal
+          isOpen={certModalOpen}
+          onClose={() => setCertModalOpen(false)}
+          student={student}
+          metrics={readinessMetrics}
+        />
       </div>
     </div>
   );

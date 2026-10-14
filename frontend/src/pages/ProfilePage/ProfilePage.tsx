@@ -328,11 +328,29 @@ export default function ProfilePage() {
                 Verified Skills Extracted from Latest Resume ({resumeProfile.filename}):
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {resumeProfile.skills.map(sk => (
-                  <span key={sk.name} className="badge badge-emerald text-xs flex items-center gap-1">
-                    <CheckCircle2 size={11} /> {sk.name} ({sk.level})
-                  </span>
-                ))}
+                {resumeProfile.skills.map(sk => {
+                  const alreadyAdded = skills.some(s => s.name.toLowerCase() === sk.name.toLowerCase());
+                  return (
+                    <button
+                      key={sk.name}
+                      type="button"
+                      className={`badge ${alreadyAdded ? 'badge-emerald' : 'badge-indigo'} text-xs flex items-center gap-1 cursor-pointer transition-transform hover:scale-105`}
+                      onClick={() => {
+                        if (!alreadyAdded) {
+                          setSkills(prev => [...prev, {
+                            name: sk.name,
+                            level: sk.level.toLowerCase(),
+                            score: sk.level.toLowerCase() === 'advanced' ? 85 : sk.level.toLowerCase() === 'intermediate' ? 60 : 30
+                          }]);
+                          toast.success(`Added ${sk.name} to your profile skills!`);
+                        }
+                      }}
+                      title={alreadyAdded ? 'Already added to profile' : 'Click to add to your profile skills'}
+                    >
+                      <CheckCircle2 size={11} /> {sk.name} ({sk.level}) {alreadyAdded ? '✓' : '+'}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

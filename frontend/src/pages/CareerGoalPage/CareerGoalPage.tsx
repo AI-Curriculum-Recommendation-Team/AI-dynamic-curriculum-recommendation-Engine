@@ -154,6 +154,26 @@ export default function CareerGoalPage() {
                   <strong>AI Profile Summary:</strong> {matchAnalysis.headline}
                 </div>
               )}
+
+              {matchAnalysis?.skills && matchAnalysis.skills.length > 0 && (
+                <div className="mt-3">
+                  <div className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+                    Extracted Competencies & Experience:
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {matchAnalysis.skills.map((sk, idx) => (
+                      <span
+                        key={idx}
+                        className="badge badge-indigo text-xs flex items-center gap-1"
+                        style={{ padding: '3px 8px' }}
+                      >
+                        <strong>{sk.name}</strong>
+                        <span className="opacity-75 font-normal">({sk.level})</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="career-select-grid animate-fade-up delay-100">
