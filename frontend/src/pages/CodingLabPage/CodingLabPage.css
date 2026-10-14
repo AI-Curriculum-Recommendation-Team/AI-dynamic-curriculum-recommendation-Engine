@@ -58,24 +58,92 @@
 
 .problem-description-content {
   font-size: 0.875rem;
-  line-height: 1.65;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.problem-description-content h1,
+.problem-description-content h2,
+.problem-description-content h3,
+.problem-description-content h4 {
   color: var(--text-primary);
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem 0;
 }
 
 .problem-description-content h3 {
-  font-size: 0.95rem;
-  font-weight: 700;
-  margin: 1.25rem 0 0.5rem 0;
-  color: var(--text-primary);
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--clr-indigo-400);
 }
 
 .problem-description-content p {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
+  color: var(--text-secondary);
 }
 
-.problem-description-content ul {
-  padding-left: 1.25rem;
-  margin-bottom: 0.75rem;
+.problem-description-content strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.problem-description-content code,
+.constraints-content code,
+.hint-markdown code,
+.review-markdown code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.8125rem;
+  color: var(--clr-indigo-400);
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
+  word-break: break-word;
+}
+
+.problem-description-content pre,
+.constraints-content pre,
+.review-markdown pre {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  overflow-x: auto;
+}
+
+.problem-description-content pre code,
+.constraints-content pre code,
+.review-markdown pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--text-primary);
+}
+
+.problem-description-content ul,
+.constraints-content ul,
+.review-markdown ul {
+  padding-left: 1.4rem;
+  margin-bottom: 0.85rem;
+  list-style-type: disc;
+}
+
+.problem-description-content ol,
+.constraints-content ol,
+.review-markdown ol {
+  padding-left: 1.4rem;
+  margin-bottom: 0.85rem;
+  list-style-type: decimal;
+}
+
+.problem-description-content li,
+.constraints-content li,
+.review-markdown li {
+  margin-bottom: 0.4rem;
+  line-height: 1.6;
 }
 
 .constraints-card {
@@ -83,15 +151,27 @@
   border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: var(--radius-lg);
   padding: 0.85rem 1rem;
-  margin: 1rem 0;
+  margin: 1.25rem 0 0.75rem 0;
 }
 
-.constraints-card ul {
-  margin: 0;
-  padding-left: 1.2rem;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 0.8rem;
+.constraints-content {
+  font-size: 0.8125rem;
   color: var(--text-secondary);
+}
+
+.constraints-content ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.hint-markdown p,
+.review-markdown p {
+  margin-bottom: 0.5rem;
+}
+
+.hint-markdown p:last-child,
+.review-markdown p:last-child {
+  margin-bottom: 0;
 }
 
 .test-case-card {

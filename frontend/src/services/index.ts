@@ -286,8 +286,16 @@ export const companyService = {
 };
 
 export const codingLabService = {
-  getCurrentWeekChallenge: () =>
-    api.get<import('../types').CodingChallenge>('/v4/coding/current-week').then(r => r.data),
+  getCurrentWeekChallenge: (weekId?: number, random?: boolean) => {
+    const params = new URLSearchParams();
+    if (weekId) params.append('week_id', weekId.toString());
+    if (random) params.append('random', 'true');
+    const qs = params.toString();
+    return api.get<import('../types').CodingChallenge>(`/v4/coding/current-week${qs ? `?${qs}` : ''}`).then(r => r.data);
+  },
+
+  getRandomLearnedChallenge: () =>
+    api.get<import('../types').CodingChallenge>('/v4/coding/random-learned').then(r => r.data),
 
   listChallenges: () =>
     api.get<Array<{

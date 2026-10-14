@@ -315,6 +315,7 @@ export interface CompanyProfile {
 export interface CodingChallenge {
   id: number;
   curriculum_week_id?: number;
+  week_number?: number;
   title: string;
   topic: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';

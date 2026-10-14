@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Play, CheckCircle2, XCircle, Code2, Clock, Cpu, Lightbulb, FileText, Check, Lock, Terminal, Sparkles, RotateCcw } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import { Play, CheckCircle2, XCircle, Code2, Clock, Cpu, Lightbulb, FileText, Check, Lock, Terminal, Sparkles, RotateCcw, Shuffle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { codingLabService } from '../../services';
 import type { CodingChallenge, CodingSubmissionResult, CodingRunResult } from '../../types';
 import './CodingLabPage.css';
 
 export default function CodingLabPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [challenge, setChallenge] = useState<CodingChallenge | null>(null);
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState<'python' | 'javascript' | 'cpp'>('python');
@@ -24,14 +27,27 @@ export default function CodingLabPage() {
   const [hintsList, setHintsList] = useState<string[]>([]);
   const [loadingHints, setLoadingHints] = useState(false);
 
+  const weekIdParam = searchParams.get('week_id');
+  const modeParam = searchParams.get('mode');
+
   useEffect(() => {
     loadChallenge();
-  }, []);
+  }, [weekIdParam, modeParam]);
 
-  const loadChallenge = async () => {
+  const loadChallenge = async (overrideWeekId?: number, overrideRandom?: boolean) => {
     setLoading(true);
+    setRunResult(null);
+    setResult(null);
+    setRevealedHints(0);
+    setHintsList([]);
+
     try {
-      const data = await codingLabService.getCurrentWeekChallenge();
+      const isSpecificWeek = overrideWeekId !== undefined ? true : Boolean(weekIdParam);
+      const targetWeekId = overrideWeekId !== undefined ? overrideWeekId : (weekIdParam ? Number(weekIdParam) : undefined);
+      // When clicking Coding Lab from menu (no week_id) or mode=random, request a random learned topic challenge
+      const isRandom = overrideRandom !== undefined ? overrideRandom : (!isSpecificWeek || modeParam === 'random');
+
+      const data = await codingLabService.getCurrentWeekChallenge(targetWeekId, isRandom);
       setChallenge(data);
       const initialCode = data.starter_code?.[language] || data.starter_code?.python || '# Write solution here\n';
       setCode(initialCode);
@@ -52,6 +68,11 @@ export default function CodingLabPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleShuffleLearnedTopic = () => {
+    setSearchParams({ mode: 'random' });
+    loadChallenge(undefined, true);
   };
 
   const handleLanguageChange = (newLang: 'python' | 'javascript' | 'cpp') => {
@@ -163,18 +184,34 @@ export default function CodingLabPage() {
     <div className="page-container">
       <div className="container">
         {/* Header */}
-        <div className="page-header animate-fade-up">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="badge badge-indigo">Week {challenge.curriculum_week_id || 1} Practical Lab</span>
-            <span className={`badge ${challenge.difficulty === 'Easy' ? 'badge-emerald' : challenge.difficulty === 'Hard' ? 'badge-rose' : 'badge-amber'}`}>
-              {challenge.difficulty}
-            </span>
-            <span className="badge badge-purple">AI Evaluated</span>
+        <div className="page-header animate-fade-up flex justify-between items-start flex-wrap gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className="badge badge-indigo">
+                {challenge.week_number ? `Week ${challenge.week_number}` : challenge.curriculum_week_id ? `Week ${challenge.curriculum_week_id}` : 'Roadmap'} Practical Lab
+              </span>
+              <span className={`badge ${challenge.difficulty === 'Easy' ? 'badge-emerald' : challenge.difficulty === 'Hard' ? 'badge-rose' : 'badge-amber'}`}>
+                {challenge.difficulty}
+              </span>
+              <span className="badge badge-purple">Learned Topic Practice</span>
+            </div>
+            <h1 className="page-title">{challenge.title}</h1>
+            <p className="page-subtitle">
+              Curriculum Topic: <strong className="text-primary">{challenge.topic}</strong>
+            </p>
           </div>
-          <h1 className="page-title">{challenge.title}</h1>
-          <p className="page-subtitle">
-            Curriculum Topic: <strong className="text-primary">{challenge.topic}</strong>
-          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-secondary flex items-center gap-1.5"
+              onClick={handleShuffleLearnedTopic}
+              title="Practice a random topic you have learned in your roadmap"
+              id="shuffle-learned-topic-btn"
+            >
+              <Shuffle size={14} className="text-indigo-400" /> Practice Another Topic
+            </button>
+          </div>
         </div>
 
         {/* Split Layout: Problem Statement on Left, Code Workspace on Right */}
@@ -210,8 +247,8 @@ export default function CodingLabPage() {
               {/* Tab 1: Description */}
               {activeLeftTab === 'description' && (
                 <div className="animate-fade-in">
-                  <div className="problem-description-content" style={{ whiteSpace: 'pre-wrap' }}>
-                    {challenge.problem_statement}
+                  <div className="problem-description-content">
+                    <ReactMarkdown>{challenge.problem_statement}</ReactMarkdown>
                   </div>
 
                   {challenge.constraints && (
@@ -219,8 +256,8 @@ export default function CodingLabPage() {
                       <div className="text-xs uppercase font-bold text-accent tracking-wider mb-2 flex items-center gap-1.5">
                         <Sparkles size={13} /> Constraints & Complexity Requirements
                       </div>
-                      <div className="text-xs font-mono text-secondary" style={{ whiteSpace: 'pre-wrap' }}>
-                        {challenge.constraints}
+                      <div className="constraints-content">
+                        <ReactMarkdown>{challenge.constraints}</ReactMarkdown>
                       </div>
                     </div>
                   )}
@@ -287,7 +324,9 @@ export default function CodingLabPage() {
                       {hintsList.slice(0, revealedHints).map((hint, idx) => (
                         <div key={idx} className="hint-item p-2.5 rounded bg-surface border border-subtle text-xs">
                           <span className="badge badge-amber text-xs mr-2 font-bold">Hint {idx + 1}</span>
-                          <span className="text-primary">{hint}</span>
+                          <div className="text-primary mt-1 hint-markdown">
+                            <ReactMarkdown>{hint}</ReactMarkdown>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -499,13 +538,15 @@ export default function CodingLabPage() {
                           </div>
                         </div>
 
-                        <div className="text-xs text-secondary mt-2 leading-relaxed" style={{ whiteSpace: 'pre-wrap' }}>
-                          <strong>AI Code Review:</strong> {result.ai_review}
+                        <div className="text-xs text-secondary mt-2 leading-relaxed review-markdown">
+                          <strong className="text-primary block mb-1">AI Code Review:</strong>
+                          <ReactMarkdown>{result.ai_review}</ReactMarkdown>
                         </div>
 
                         {result.solution_explanation && (
-                          <div className="text-xs text-muted mt-2 pt-2 border-t border-color">
-                            <strong>Optimal Algorithmic Rationale:</strong> {result.solution_explanation}
+                          <div className="text-xs text-muted mt-2 pt-2 border-t border-color review-markdown">
+                            <strong className="text-primary block mb-1">Optimal Algorithmic Rationale:</strong>
+                            <ReactMarkdown>{result.solution_explanation}</ReactMarkdown>
                           </div>
                         )}
                       </div>

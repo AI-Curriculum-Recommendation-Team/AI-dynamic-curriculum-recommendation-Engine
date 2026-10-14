@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { CheckCircle2, Clock, Circle, PlayCircle, Zap, Sparkles, ExternalLink, RefreshCw, History, FileText } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { CheckCircle2, Clock, Circle, PlayCircle, Zap, Sparkles, ExternalLink, RefreshCw, History, FileText, Code2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { curriculumService, progressService } from '../../services';
 import type { RoadmapData, CurriculumRecalibration } from '../../types';
@@ -16,6 +16,7 @@ const STATUS_CONFIG = {
 };
 
 export default function RoadmapPage() {
+  const navigate = useNavigate();
   const [roadmap, setRoadmap] = useState<RoadmapData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeQuiz, setActiveQuiz] = useState<{ id: number; topic: string } | null>(null);
@@ -294,13 +295,25 @@ export default function RoadmapPage() {
                       ))}
                     </div>
 
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm btn-glow ml-auto"
-                      onClick={() => setActiveQuiz({ id: week.week_id, topic: week.topic })}
-                    >
-                      <Zap size={13} /> Take Topic Quiz
-                    </button>
+                    <div className="flex items-center gap-2 ml-auto flex-wrap">
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm flex items-center gap-1.5"
+                        onClick={() => navigate(`/coding-lab?week_id=${week.week_id}&topic=${encodeURIComponent(week.topic)}`)}
+                        id={`coding-lab-btn-week-${week.week_id}`}
+                        title={`Practice coding challenge on ${week.topic}`}
+                      >
+                        <Code2 size={13} className="text-indigo-400" /> Coding Lab
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm btn-glow"
+                        onClick={() => setActiveQuiz({ id: week.week_id, topic: week.topic })}
+                      >
+                        <Zap size={13} /> Take Topic Quiz
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

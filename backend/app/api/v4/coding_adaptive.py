@@ -20,11 +20,16 @@ class CodeSubmissionRequest(BaseModel):
 
 @router.get("/current-week")
 def get_or_generate_current_week_challenge(
+    week_id: Optional[int] = None,
+    random: Optional[bool] = False,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
-    Returns the coding challenge for the student's current active curriculum week.
+    Returns the coding challenge for:
+    1. A specific week (if week_id provided), or
+    2. A random topic that the student has learned in their roadmap (if random=True), or
+    3. The active current curriculum week.
     If none exists, dynamically generates one grounded in the week's topic using Gemini.
     """
     student = db.query(Student).filter(Student.user_id == current_user.id).first()
@@ -39,29 +44,64 @@ def get_or_generate_current_week_challenge(
     if not curriculum:
         raise HTTPException(status_code=400, detail="No active curriculum found. Choose a career goal first.")
 
-    # Find the current active week (first uncompleted week)
-    active_week = (
-        db.query(CurriculumWeek)
-        .filter(CurriculumWeek.curriculum_id == curriculum.id, CurriculumWeek.status != "completed")
-        .order_by(CurriculumWeek.week_number)
-        .first()
-    )
+    target_week = None
 
-    if not active_week:
-        # All completed, pick the last week
-        active_week = (
+    if week_id is not None:
+        target_week = db.query(CurriculumWeek).filter(
+            CurriculumWeek.id == week_id,
+            CurriculumWeek.curriculum_id == curriculum.id
+        ).first()
+        if not target_week:
+            raise HTTPException(status_code=404, detail=f"Curriculum week {week_id} not found.")
+
+    elif random:
+        # Select from topics the student has learned (completed or in-progress in roadmap)
+        learned_weeks = (
             db.query(CurriculumWeek)
-            .filter(CurriculumWeek.curriculum_id == curriculum.id)
-            .order_by(CurriculumWeek.week_number.desc())
+            .filter(
+                CurriculumWeek.curriculum_id == curriculum.id,
+                CurriculumWeek.status.in_(["completed", "in_progress"])
+            )
+            .all()
+        )
+        if not learned_weeks:
+            # Fallback to all weeks in the student's roadmap if none marked completed yet
+            learned_weeks = (
+                db.query(CurriculumWeek)
+                .filter(CurriculumWeek.curriculum_id == curriculum.id)
+                .all()
+            )
+
+        if not learned_weeks:
+            raise HTTPException(status_code=400, detail="Curriculum contains no weeks.")
+
+        import random as py_random
+        target_week = py_random.choice(learned_weeks)
+
+    else:
+        # Find the current active week (first uncompleted week)
+        target_week = (
+            db.query(CurriculumWeek)
+            .filter(CurriculumWeek.curriculum_id == curriculum.id, CurriculumWeek.status != "completed")
+            .order_by(CurriculumWeek.week_number)
             .first()
         )
 
-    if not active_week:
-        raise HTTPException(status_code=400, detail="Curriculum contains no weeks.")
+        if not target_week:
+            # All completed, pick the last week
+            target_week = (
+                db.query(CurriculumWeek)
+                .filter(CurriculumWeek.curriculum_id == curriculum.id)
+                .order_by(CurriculumWeek.week_number.desc())
+                .first()
+            )
+
+    if not target_week:
+        raise HTTPException(status_code=400, detail="No suitable curriculum week found.")
 
     # Check if a challenge already exists for this week
     existing_challenge = db.query(CurriculumCodingChallenge).filter(
-        CurriculumCodingChallenge.curriculum_week_id == active_week.id,
+        CurriculumCodingChallenge.curriculum_week_id == target_week.id,
         CurriculumCodingChallenge.student_id == student.id
     ).first()
 
@@ -71,17 +111,17 @@ def get_or_generate_current_week_challenge(
     # Generate with Gemini
     career_title = student.career_goal.title if student.career_goal else "Software Engineer"
     generated_data = generate_curriculum_challenge(
-        week_topic=active_week.topic,
-        week_title=active_week.topic,
+        week_topic=target_week.topic,
+        week_title=target_week.topic,
         career_title=career_title,
-        difficulty="Medium" if active_week.week_number > 2 else "Easy",
+        difficulty="Medium" if target_week.week_number > 2 else "Easy",
     )
 
     challenge = CurriculumCodingChallenge(
-        curriculum_week_id=active_week.id,
+        curriculum_week_id=target_week.id,
         student_id=student.id,
-        title=generated_data.get("title", f"{active_week.topic} Practical Lab"),
-        topic=active_week.topic,
+        title=generated_data.get("title", f"{target_week.topic} Practical Lab"),
+        topic=target_week.topic,
         difficulty=generated_data.get("difficulty", "Medium"),
         problem_statement=generated_data.get("problem_statement", ""),
         constraints=generated_data.get("constraints", ""),
@@ -96,6 +136,17 @@ def get_or_generate_current_week_challenge(
     db.refresh(challenge)
 
     return _format_challenge_response(challenge, db, student.id)
+
+
+@router.get("/random-learned")
+def get_random_learned_challenge(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Convenience endpoint to get a random coding challenge from topics the student has learned.
+    """
+    return get_or_generate_current_week_challenge(random=True, current_user=current_user, db=db)
 
 
 @router.get("/challenges")
@@ -277,9 +328,18 @@ def _format_challenge_response(challenge: CurriculumCodingChallenge, db: Session
         .first()
     )
 
+    week_obj = (
+        db.query(CurriculumWeek)
+        .filter(CurriculumWeek.id == challenge.curriculum_week_id)
+        .first()
+        if challenge.curriculum_week_id
+        else None
+    )
+
     return {
         "id": challenge.id,
         "curriculum_week_id": challenge.curriculum_week_id,
+        "week_number": week_obj.week_number if week_obj else None,
         "title": challenge.title,
         "topic": challenge.topic,
         "difficulty": challenge.difficulty,
