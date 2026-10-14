@@ -57,8 +57,8 @@
   --bg-tertiary:   #e8eef6;
   --bg-card:       #ffffff;
   --bg-card-hover: #f8fafc;
-  --bg-glass:      rgba(255,255,255,0.82);
-  --bg-glass-dark: rgba(255,255,255,0.60);
+  --bg-glass:      rgba(255,255,255,0.92);
+  --bg-glass-dark: rgba(255,255,255,0.75);
   --bg-overlay:    rgba(0,0,0,0.45);
 
   /* Text */
@@ -137,8 +137,8 @@
   --bg-tertiary:   #101520;
   --bg-card:       #111726;
   --bg-card-hover: #172033;
-  --bg-glass:      rgba(13,18,30,0.88);
-  --bg-glass-dark: rgba(7,9,14,0.94);
+  --bg-glass:      rgba(13,18,30,0.92);
+  --bg-glass-dark: rgba(7,9,14,0.96);
 
   --text-primary:   #f1f5f9;
   --text-secondary: #94a3b8;
@@ -172,8 +172,8 @@
     --bg-tertiary:   #101520;
     --bg-card:       #111726;
     --bg-card-hover: #172033;
-    --bg-glass:      rgba(13,18,30,0.88);
-    --bg-glass-dark: rgba(7,9,14,0.94);
+    --bg-glass:      rgba(13,18,30,0.92);
+    --bg-glass-dark: rgba(7,9,14,0.96);
     --text-primary:   #f1f5f9;
     --text-secondary: #94a3b8;
     --text-muted:     #475569;
@@ -269,6 +269,7 @@ code, pre {
   width: 100%;
   min-width: 0;
   position: relative;
+  padding-top: 60px;
 }
 
 .app-main-content {
