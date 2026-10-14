@@ -48,32 +48,37 @@ function AppLayout({ sidebarCollapsed, onToggleSidebar }: {
 }) {
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const showSidebar = isAuthenticated && !NO_SIDEBAR_PATHS.includes(location.pathname);
 
-  const sidebarW = showSidebar
-    ? (sidebarCollapsed ? 'var(--sidebar-w-collapsed)' : 'var(--sidebar-w)')
-    : '0px';
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [location.pathname]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="app-root-layout">
       {/* Sticky Navbar — spans full width above the sidebar+content */}
       <Navbar
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={showSidebar ? onToggleSidebar : undefined}
+        mobileSidebarOpen={mobileSidebarOpen}
+        onToggleMobileSidebar={showSidebar ? () => setMobileSidebarOpen(o => !o) : undefined}
       />
 
-      <div style={{ display: 'flex', flex: 1 }}>
-        {/* Persistent Sidebar */}
-        {showSidebar && <Sidebar collapsed={sidebarCollapsed} />}
+      <div className="app-body-container">
+        {/* Persistent Sidebar / Mobile Drawer */}
+        {showSidebar && (
+          <Sidebar
+            collapsed={sidebarCollapsed}
+            mobileOpen={mobileSidebarOpen}
+            onCloseMobile={() => setMobileSidebarOpen(false)}
+          />
+        )}
 
-        {/* Main content — shifts right to match sidebar width */}
+        {/* Main content — responsive margin without inline style lock */}
         <main
-          style={{
-            flex: 1,
-            marginLeft: sidebarW,
-            transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            minWidth: 0,
-          }}
+          className={`app-main-content ${showSidebar ? 'with-sidebar' : 'no-sidebar'} ${sidebarCollapsed ? 'collapsed' : ''}`}
         >
           <Routes>
             {/* Public */}

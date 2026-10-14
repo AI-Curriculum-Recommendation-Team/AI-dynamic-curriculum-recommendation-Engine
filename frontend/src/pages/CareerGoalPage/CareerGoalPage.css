@@ -130,9 +130,20 @@
 @media (max-width: 640px) {
   .career-select-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .career-select-card {
-    padding: 1.5rem;
+    padding: 1.25rem 1rem;
+  }
+
+  .career-confirm {
+    padding: 1.5rem 1rem;
+    margin-top: 1.75rem;
+  }
+
+  .career-confirm .btn {
+    width: 100%;
+    justify-content: center;
   }
 }

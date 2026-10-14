@@ -245,6 +245,16 @@
   }
 }
 
+@media (max-width: 480px) {
+  .auth-form-panel {
+    padding: 1.5rem 1rem;
+    padding-top: 2rem;
+  }
+  .auth-form-card {
+    padding: 1.5rem 1rem;
+  }
+}
+
 /* ---- Orb fallback for single-column (login/register old layout) ---- */
 .auth-page-simple {
   min-height: 100vh;

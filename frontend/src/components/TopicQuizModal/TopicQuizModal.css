@@ -117,3 +117,20 @@
   font-weight: 800;
   font-family: 'Space Grotesk', sans-serif;
 }
+
+@media (max-width: 480px) {
+  .modal-backdrop {
+    padding: 0.5rem;
+  }
+  .quiz-modal-card {
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-lg);
+  }
+  .quiz-question-title {
+    font-size: 1rem;
+  }
+  .quiz-opt-btn {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+  }
+}

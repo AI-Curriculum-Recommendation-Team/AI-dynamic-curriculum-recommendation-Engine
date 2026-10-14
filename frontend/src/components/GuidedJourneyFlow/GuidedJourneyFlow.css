@@ -198,3 +198,25 @@
     min-width: 12px;
   }
 }
+
+@media (max-width: 480px) {
+  .journey-flow-card {
+    padding: 0.875rem 0.875rem;
+    margin-bottom: 1.25rem;
+    border-radius: var(--radius-lg);
+  }
+  .journey-step-node {
+    padding: 0.35rem;
+  }
+  .journey-node-icon-wrap {
+    width: 24px;
+    height: 24px;
+  }
+  .journey-connector-line {
+    margin: 0 0.2rem;
+    min-width: 8px;
+  }
+  .journey-current-guidance {
+    font-size: 0.75rem;
+  }
+}

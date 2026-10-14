@@ -177,5 +177,9 @@
 }
 
 @media (max-width: 480px) {
-  .pref-grid { grid-template-columns: 1fr 1fr; }
+  .pref-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+}
+
+@media (max-width: 360px) {
+  .pref-grid { grid-template-columns: 1fr; }
 }

@@ -23,7 +23,8 @@ export default function GoogleAuthButton({ mode }: Props) {
   const [gisLoaded, setGisLoaded] = useState(false);
   const googleBtnContainerRef = useRef<HTMLDivElement>(null);
 
-  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '537093897734-ngnvo1o5803et4ap92j3fj01vnqv6jqs.apps.googleusercontent.com';
+  const rawClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '537093897734-ngnvo1o5803et4ap92j3fj01vnqv6jqs.apps.googleusercontent.com';
+  const GOOGLE_CLIENT_ID = rawClientId.trim().replace(/^['"]|['"]$/g, '');
 
   const handleCredentialResponse = async (response: { credential: string }) => {
     if (!response?.credential) {

@@ -145,7 +145,91 @@
   flex-shrink: 0;
 }
 
-/* ── Mobile: hide sidebar below 768px ── */
+/* ── Mobile Drawer Elements ── */
+.sidebar-mobile-header {
+  display: none;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+/* ── Mobile: Off-canvas drawer below 768px ── */
 @media (max-width: 768px) {
-  .sidebar { display: none; }
+  .sidebar {
+    display: flex;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    height: 100dvh;
+    width: min(290px, 84vw);
+    z-index: 500;
+    transform: translateX(-100%);
+    transition: transform var(--sidebar-transition);
+    box-shadow: 4px 0 28px rgba(0, 0, 0, 0.45);
+    background: var(--bg-card);
+  }
+
+  .sidebar.sidebar-mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.125rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+  }
+
+  .sidebar-mobile-logo-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--gradient-brand);
+    color: white;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    font-family: 'Space Grotesk', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-mobile-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .sidebar-mobile-close {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .sidebar-mobile-close:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.60);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 490;
+    animation: fadeIn 0.2s ease-out;
+  }
 }

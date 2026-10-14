@@ -19,14 +19,17 @@
 /* ---- Admin Table ---- */
 .admin-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
+  width: 100%;
 }
 
 .admin-table {
   width: 100%;
+  min-width: 520px;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
@@ -146,5 +149,11 @@
 
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
-  .admin-layout { grid-template-columns: 1fr; }
+  .admin-layout { grid-template-columns: 1fr; gap: 1.25rem; }
+}
+
+@media (max-width: 640px) {
+  .admin-table th, .admin-table td { padding: 0.75rem 0.875rem; }
+  .admin-user-cell { gap: 0.5rem; }
+  .admin-avatar { width: 30px; height: 30px; min-width: 30px; font-size: 0.75rem; }
 }

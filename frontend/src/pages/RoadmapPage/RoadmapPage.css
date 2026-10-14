@@ -184,8 +184,16 @@
 
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
-  .roadmap-node-circle { width: 40px; height: 40px; min-width: 40px; font-size: 0.875rem; }
-  .roadmap-line { left: 19px; top: 40px; }
-  .roadmap-content { padding: 1rem 1.125rem; }
-  .roadmap-item { gap: 1rem; }
+  .roadmap-node-circle { width: 36px; height: 36px; min-width: 36px; font-size: 0.8125rem; }
+  .roadmap-line { left: 17px; top: 36px; }
+  .roadmap-content { padding: 1rem 0.875rem; border-radius: var(--radius-lg); }
+  .roadmap-item { gap: 0.75rem; }
+  .roadmap-controls { gap: 0.35rem; }
+  .roadmap-status-btn { padding: 0.25rem 0.65rem; font-size: 0.7rem; }
+  .roadmap-progress-bar { padding: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .roadmap-content-header { gap: 0.5rem; }
+  .roadmap-week-topic { font-size: 0.9375rem; }
 }

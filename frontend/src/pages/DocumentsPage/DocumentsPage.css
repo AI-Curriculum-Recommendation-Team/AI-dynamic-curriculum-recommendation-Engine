@@ -119,5 +119,7 @@
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
   .docs-grid { grid-template-columns: 1fr; }
-  .upload-dropzone { padding: 2rem 1.5rem; }
+  .upload-dropzone { padding: 1.5rem 1rem; }
+  .doc-card { padding: 1rem; }
+  .doc-actions-grid { grid-template-columns: 1fr; }
 }

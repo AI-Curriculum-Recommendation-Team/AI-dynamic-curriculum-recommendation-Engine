@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Bell, CheckCheck, Sun, Moon, Monitor,
-  LogOut, User, ChevronLeft, ChevronRight,
+  LogOut, User, ChevronLeft, ChevronRight, Menu, X,
 } from 'lucide-react';
 import { useAuthStore, useThemeStore } from '../../store';
 import { authService, notificationService } from '../../services';
@@ -13,9 +13,16 @@ import './Navbar.css';
 interface NavbarProps {
   sidebarCollapsed?: boolean;
   onToggleSidebar?: () => void;
+  mobileSidebarOpen?: boolean;
+  onToggleMobileSidebar?: () => void;
 }
 
-export default function Navbar({ sidebarCollapsed, onToggleSidebar }: NavbarProps) {
+export default function Navbar({
+  sidebarCollapsed,
+  onToggleSidebar,
+  mobileSidebarOpen = false,
+  onToggleMobileSidebar,
+}: NavbarProps) {
   const { user, isAuthenticated, clearAuth } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
   const location = useLocation();
@@ -61,20 +68,33 @@ export default function Navbar({ sidebarCollapsed, onToggleSidebar }: NavbarProp
   const initials = user?.email?.charAt(0).toUpperCase() ?? '?';
   const username = user?.email?.split('@')[0] ?? '';
 
+  const handleToggleClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768 && onToggleMobileSidebar) {
+      onToggleMobileSidebar();
+    } else if (onToggleSidebar) {
+      onToggleSidebar();
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-inner">
 
-        {/* ── Sidebar Toggle (single clean control) ── */}
-        {onToggleSidebar && (
+        {/* ── Sidebar Toggle (desktop chevron / mobile hamburger) ── */}
+        {(onToggleSidebar || onToggleMobileSidebar) && (
           <button
             className="navbar-sidebar-toggle"
-            onClick={onToggleSidebar}
-            title={sidebarCollapsed ? 'Open sidebar' : 'Collapse sidebar'}
+            onClick={handleToggleClick}
+            title={mobileSidebarOpen ? 'Close menu' : sidebarCollapsed ? 'Open sidebar' : 'Collapse sidebar'}
             id="sidebar-toggle-btn"
-            aria-label={sidebarCollapsed ? 'Open sidebar' : 'Collapse sidebar'}
+            aria-label={mobileSidebarOpen ? 'Close menu' : sidebarCollapsed ? 'Open sidebar' : 'Collapse sidebar'}
           >
-            {sidebarCollapsed ? <ChevronRight size={19} /> : <ChevronLeft size={19} />}
+            <span className="sidebar-toggle-desktop">
+              {sidebarCollapsed ? <ChevronRight size={19} /> : <ChevronLeft size={19} />}
+            </span>
+            <span className="sidebar-toggle-mobile">
+              {mobileSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </span>
           </button>
         )}
 

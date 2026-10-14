@@ -315,8 +315,39 @@
 }
 
 /* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .curriculum-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .curriculum-header .flex {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .curriculum-header .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 640px) {
-  .week-header { padding: 1rem; }
-  .week-details { padding: 0 1rem 1.25rem; padding-top: 1rem; }
-  .week-num-badge { width: 40px; height: 40px; font-size: 0.8125rem; }
+  .week-header {
+    padding: 0.875rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .week-header-left {
+    min-width: 0;
+  }
+  .week-details { padding: 0 0.875rem 1.25rem; padding-top: 0.875rem; }
+  .week-num-badge { width: 38px; height: 38px; min-width: 38px; font-size: 0.8125rem; }
+  .resource-card { padding: 0.875rem 1rem; }
+}
+
+@media (max-width: 480px) {
+  .week-topic { font-size: 0.875rem; }
+  .week-meta { font-size: 0.7rem; }
 }
