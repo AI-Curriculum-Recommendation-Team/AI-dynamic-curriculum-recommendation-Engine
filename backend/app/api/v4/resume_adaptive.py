@@ -163,7 +163,7 @@ async def upload_resume_and_adapt_curriculum(
         # Snapshot previous weeks
         old_weeks = db.query(CurriculumWeek).filter(CurriculumWeek.curriculum_id == curriculum.id).all()
         old_weeks_snapshot = [
-            {"week_number": w.week_number, "title": w.title, "topic": w.topic} for w in old_weeks
+            {"week_number": w.week_number, "title": w.topic, "topic": w.topic} for w in old_weeks
         ]
 
         # Record recalibration
@@ -186,20 +186,19 @@ async def upload_resume_and_adapt_curriculum(
         # Replace upcoming weeks
         db.query(CurriculumWeek).filter(
             CurriculumWeek.curriculum_id == curriculum.id,
-            CurriculumWeek.is_completed == False
+            CurriculumWeek.status != "completed"
         ).delete(synchronize_session=False)
 
         for w_data in accelerated_data.get("curriculum", []):
             new_week = CurriculumWeek(
                 curriculum_id=curriculum.id,
                 week_number=w_data.get("week_number"),
-                title=w_data.get("title"),
-                topic=w_data.get("topic"),
-                description=w_data.get("description", ""),
-                learning_objectives=w_data.get("learning_objectives", []),
+                topic=w_data.get("topic") or w_data.get("title", f"Week {w_data.get('week_number')}"),
+                subtopics=w_data.get("learning_objectives", []),
                 estimated_hours=w_data.get("estimated_hours", 10),
+                difficulty="medium",
                 resources=w_data.get("resources", []),
-                is_completed=False,
+                status="not_started",
             )
             db.add(new_week)
 

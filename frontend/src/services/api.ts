@@ -15,7 +15,7 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  if (config.url && (config.url.startsWith('/v2') || config.url.startsWith('/v3'))) {
+  if (config.url && (config.url.startsWith('/v2') || config.url.startsWith('/v3') || config.url.startsWith('/v4'))) {
     config.baseURL = `${API_BASE}/api`;
   } else {
     config.baseURL = `${API_BASE}/api/v1`;

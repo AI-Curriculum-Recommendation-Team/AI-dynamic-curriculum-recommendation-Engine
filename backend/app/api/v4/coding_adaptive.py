@@ -42,7 +42,7 @@ def get_or_generate_current_week_challenge(
     # Find the current active week (first uncompleted week)
     active_week = (
         db.query(CurriculumWeek)
-        .filter(CurriculumWeek.curriculum_id == curriculum.id, CurriculumWeek.is_completed == False)
+        .filter(CurriculumWeek.curriculum_id == curriculum.id, CurriculumWeek.status != "completed")
         .order_by(CurriculumWeek.week_number)
         .first()
     )
@@ -72,7 +72,7 @@ def get_or_generate_current_week_challenge(
     career_title = student.career_goal.title if student.career_goal else "Software Engineer"
     generated_data = generate_curriculum_challenge(
         week_topic=active_week.topic,
-        week_title=active_week.title,
+        week_title=active_week.topic,
         career_title=career_title,
         difficulty="Medium" if active_week.week_number > 2 else "Easy",
     )

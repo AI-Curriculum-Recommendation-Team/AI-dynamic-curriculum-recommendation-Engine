@@ -82,13 +82,13 @@ def apply_target_company_to_curriculum(
     current_weeks_data = [
         {
             "week_number": w.week_number,
-            "title": w.title,
+            "title": w.topic,
             "topic": w.topic,
-            "description": w.description,
-            "learning_objectives": w.learning_objectives or [],
+            "description": f"{w.topic} ({len(w.subtopics or [])} subtopics)",
+            "learning_objectives": w.subtopics or [],
             "estimated_hours": w.estimated_hours,
             "resources": w.resources or [],
-            "is_completed": w.is_completed,
+            "is_completed": w.status == "completed",
         }
         for w in weeks
     ]
@@ -124,11 +124,9 @@ def apply_target_company_to_curriculum(
     for w_data in adapted_weeks:
         w_num = w_data.get("week_number")
         existing_w = next((w for w in weeks if w.week_number == w_num), None)
-        if existing_w and not existing_w.is_completed:
-            existing_w.title = w_data.get("title", existing_w.title)
-            existing_w.topic = w_data.get("topic", existing_w.topic)
-            existing_w.description = w_data.get("description", existing_w.description)
-            existing_w.learning_objectives = w_data.get("learning_objectives", existing_w.learning_objectives)
+        if existing_w and existing_w.status != "completed":
+            existing_w.topic = w_data.get("topic") or w_data.get("title") or existing_w.topic
+            existing_w.subtopics = w_data.get("learning_objectives") or existing_w.subtopics or []
             if w_data.get("resources"):
                 existing_w.resources = w_data.get("resources")
 

@@ -42,12 +42,12 @@ def recalibrate_curriculum(
     current_weeks_data = [
         {
             "week_number": w.week_number,
-            "title": w.title,
+            "title": w.topic,
             "topic": w.topic,
-            "description": w.description,
-            "learning_objectives": w.learning_objectives or [],
+            "description": f"{w.topic} - {len(w.subtopics or [])} core competencies",
+            "learning_objectives": w.subtopics or [],
             "estimated_hours": w.estimated_hours,
-            "is_completed": w.is_completed,
+            "is_completed": w.status == "completed",
             "resources": w.resources or [],
         }
         for w in weeks
@@ -61,7 +61,7 @@ def recalibrate_curriculum(
         .all()
     )
     quiz_summary = [
-        {"topic": tq.topic, "score": qa.score, "passed": qa.passed}
+        {"topic": tq.topic, "score": qa.score, "passed": qa.score >= 60}
         for qa, tq in quiz_attempts
     ]
 
@@ -112,11 +112,9 @@ def recalibrate_curriculum(
         week_num = w_data.get("week_number")
         existing_week = next((w for w in weeks if w.week_number == week_num), None)
         if existing_week:
-            if not existing_week.is_completed:
-                existing_week.title = w_data.get("title", existing_week.title)
-                existing_week.topic = w_data.get("topic", existing_week.topic)
-                existing_week.description = w_data.get("description", existing_week.description)
-                existing_week.learning_objectives = w_data.get("learning_objectives", existing_week.learning_objectives)
+            if existing_week.status != "completed":
+                existing_week.topic = w_data.get("topic") or w_data.get("title") or existing_week.topic
+                existing_week.subtopics = w_data.get("learning_objectives") or existing_week.subtopics or []
                 existing_week.estimated_hours = w_data.get("estimated_hours", existing_week.estimated_hours)
                 if w_data.get("resources"):
                     existing_week.resources = w_data.get("resources")
@@ -125,13 +123,12 @@ def recalibrate_curriculum(
             new_week = CurriculumWeek(
                 curriculum_id=curriculum.id,
                 week_number=week_num,
-                title=w_data.get("title", f"Week {week_num}"),
-                topic=w_data.get("topic", "Advanced Topics"),
-                description=w_data.get("description", ""),
-                learning_objectives=w_data.get("learning_objectives", []),
+                topic=w_data.get("topic") or w_data.get("title", f"Week {week_num}"),
+                subtopics=w_data.get("learning_objectives", []),
                 estimated_hours=w_data.get("estimated_hours", 10),
+                difficulty="medium",
                 resources=w_data.get("resources", []),
-                is_completed=False,
+                status="not_started",
             )
             db.add(new_week)
 

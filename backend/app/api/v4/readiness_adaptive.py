@@ -38,7 +38,7 @@ def get_career_readiness_metrics(
     if curriculum:
         weeks = db.query(CurriculumWeek).filter(CurriculumWeek.curriculum_id == curriculum.id).all()
         if weeks:
-            completed_weeks = sum(1 for w in weeks if w.is_completed)
+            completed_weeks = sum(1 for w in weeks if w.status == 'completed')
             completion_score = round((completed_weeks / len(weeks)) * 100, 1)
 
     # 2. Quiz Mastery Score
