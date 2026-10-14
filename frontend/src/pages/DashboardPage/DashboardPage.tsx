@@ -276,13 +276,13 @@ export default function DashboardPage() {
 
         {/* Version 4: Real-Time Career Placement & Target Company Benchmark Widget */}
         <div className="card-3d v4-readiness-dashboard-card animate-fade-up delay-180 mt-6">
-          <div className="flex justify-between items-center flex-wrap gap-3 pb-3 border-b border-color">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-indigo-500/15 text-indigo-400">
+          <div className="v4-readiness-header">
+            <div className="v4-readiness-title-group">
+              <div className="v4-readiness-icon-pill">
                 <ShieldCheck size={22} />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
+              <div className="v4-readiness-title-text">
+                <div className="v4-readiness-badges">
                   <span className="badge badge-indigo text-xs">Version 4 Placement Alignment</span>
                   {readinessMetrics?.target_company && (
                     <span className="badge badge-emerald text-xs flex items-center gap-1">
@@ -295,13 +295,13 @@ export default function DashboardPage() {
                     </span>
                   )}
                 </div>
-                <h3 className="text-base font-bold text-primary mt-1">
+                <h3>
                   Target Role: {student?.career_goal?.title || 'Software Engineering'} Placement Index
                 </h3>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="v4-readiness-actions">
               <button
                 type="button"
                 className="btn btn-secondary btn-sm flex items-center gap-1.5"
@@ -317,67 +317,80 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 items-center">
-            {/* Overall Score */}
-            <div className="flex items-center gap-3.5 p-3 rounded-lg bg-surface border border-subtle">
-              <div className="text-center shrink-0">
-                <div className="text-2xl font-extrabold font-mono text-indigo-400">
+          <div className="v4-readiness-grid">
+            {/* Box 1: Overall Score */}
+            <div className="v4-readiness-box v4-readiness-score-box">
+              <div className="v4-score-circular-badge">
+                <div className="v4-score-number">
                   {readinessMetrics?.overall_score ?? 80}%
                 </div>
-                <div className="text-[10px] uppercase font-bold text-muted">Placement Index</div>
+                <div className="v4-score-caption">Placement Index</div>
               </div>
-              <div className="text-xs text-secondary leading-snug">
-                Target Benchmark: <strong className="text-primary">{readinessMetrics?.benchmark_target ?? 80}%</strong>. Calibrated to {readinessMetrics?.target_company?.company_name || 'Tier-1 Standards'}.
-              </div>
-            </div>
-
-            {/* Curriculum + Quiz Progress */}
-            <div className="p-3 rounded-lg bg-surface border border-subtle text-xs">
-              <div className="flex justify-between text-muted mb-1">
-                <span>Curriculum Mastery</span>
-                <strong className="text-primary">{readinessMetrics?.curriculum_completion_score ?? 0}%</strong>
-              </div>
-              <div className="progress-bar-track mb-2" style={{ height: 4 }}>
-                <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.curriculum_completion_score ?? 0}%` }} />
-              </div>
-              <div className="flex justify-between text-muted mb-1">
-                <span>Quiz Mastery</span>
-                <strong className="text-primary">{readinessMetrics?.quiz_mastery_score ?? 0}%</strong>
-              </div>
-              <div className="progress-bar-track" style={{ height: 4 }}>
-                <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.quiz_mastery_score ?? 0}%`, background: 'var(--clr-amber-500)' }} />
+              <div className="v4-score-explainer">
+                Target Benchmark: <strong className="text-primary">{readinessMetrics?.benchmark_target ?? 80}%</strong>.<br />
+                Calibrated to <strong>{readinessMetrics?.target_company?.company_name || 'Tier-1 Standards'}</strong>.
               </div>
             </div>
 
-            {/* Coding Lab + Stack Match */}
-            <div className="p-3 rounded-lg bg-surface border border-subtle text-xs">
-              <div className="flex justify-between text-muted mb-1">
-                <span>Coding Challenges</span>
-                <strong className="text-primary">{readinessMetrics?.coding_score ?? 0}%</strong>
+            {/* Box 2: Curriculum + Quiz Progress */}
+            <div className="v4-readiness-box">
+              <div className="v4-bar-metric-row">
+                <div className="v4-bar-header">
+                  <span className="v4-bar-label">Curriculum Mastery (20%)</span>
+                  <span className="v4-bar-val">{readinessMetrics?.curriculum_completion_score ?? 0}%</span>
+                </div>
+                <div className="progress-bar-track" style={{ height: 6 }}>
+                  <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.curriculum_completion_score ?? 0}%` }} />
+                </div>
               </div>
-              <div className="progress-bar-track mb-2" style={{ height: 4 }}>
-                <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.coding_score ?? 0}%`, background: 'var(--clr-emerald-500)' }} />
-              </div>
-              <div className="flex justify-between text-muted mb-1">
-                <span>Company Tech Match</span>
-                <strong className="text-primary">{readinessMetrics?.company_match_percentage ?? 0}%</strong>
-              </div>
-              <div className="progress-bar-track" style={{ height: 4 }}>
-                <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.company_match_percentage ?? 0}%`, background: 'linear-gradient(90deg, #6366f1, #a855f7)' }} />
+
+              <div className="v4-bar-metric-row">
+                <div className="v4-bar-header">
+                  <span className="v4-bar-label">Quiz Validation (25%)</span>
+                  <span className="v4-bar-val">{readinessMetrics?.quiz_mastery_score ?? 0}%</span>
+                </div>
+                <div className="progress-bar-track" style={{ height: 6 }}>
+                  <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.quiz_mastery_score ?? 0}%`, background: 'var(--clr-amber-500)' }} />
+                </div>
               </div>
             </div>
 
-            {/* Quick Coding Lab CTA */}
-            <div className="flex flex-col gap-2 p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-xs">
-              <div className="flex items-center gap-1.5 font-bold text-primary">
-                <Code2 size={15} className="text-indigo-400" />
-                <span>Hands-On Coding Lab</span>
+            {/* Box 3: Coding Lab + Stack Match */}
+            <div className="v4-readiness-box">
+              <div className="v4-bar-metric-row">
+                <div className="v4-bar-header">
+                  <span className="v4-bar-label">Coding Challenges (25%)</span>
+                  <span className="v4-bar-val">{readinessMetrics?.coding_score ?? 0}%</span>
+                </div>
+                <div className="progress-bar-track" style={{ height: 6 }}>
+                  <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.coding_score ?? 0}%`, background: 'var(--clr-emerald-500)' }} />
+                </div>
               </div>
-              <p className="text-[11px] text-secondary leading-snug">
-                Practice topic algorithms with automated unit tests & AI complexity analysis.
-              </p>
-              <Link to="/coding-lab" className="btn btn-secondary btn-xs flex items-center justify-center gap-1 mt-1">
-                Launch Coding Lab <ArrowRight size={12} />
+
+              <div className="v4-bar-metric-row">
+                <div className="v4-bar-header">
+                  <span className="v4-bar-label">Company Tech Match (30%)</span>
+                  <span className="v4-bar-val">{readinessMetrics?.company_match_percentage ?? 0}%</span>
+                </div>
+                <div className="progress-bar-track" style={{ height: 6 }}>
+                  <div className="progress-bar-fill" style={{ width: `${readinessMetrics?.company_match_percentage ?? 0}%`, background: 'linear-gradient(90deg, #6366f1, #a855f7)' }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Box 4: Quick Coding Lab CTA */}
+            <div className="v4-readiness-box v4-cta-card">
+              <div>
+                <div className="v4-cta-title">
+                  <Code2 size={16} className="text-indigo-400" />
+                  <span>Hands-On Coding Lab</span>
+                </div>
+                <p className="v4-cta-desc mt-1">
+                  Practice topic algorithms with unit tests & AI complexity analysis.
+                </p>
+              </div>
+              <Link to="/coding-lab" className="btn btn-secondary btn-sm flex items-center justify-center gap-1.5 w-full mt-2">
+                Launch Coding Lab <ArrowRight size={13} />
               </Link>
             </div>
           </div>
@@ -593,74 +606,74 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid-4">
-            <Link to="/tutor" className="card-3d p-4 flex flex-col justify-between hover:border-indigo-500 transition-all">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+            <Link to="/tutor" className="v3-feature-card">
+              <div className="v3-feature-header">
+                <div className="v3-feature-icon indigo">
                   <Bot size={22} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm">AI Chat Tutor</h3>
-                  <span className="text-[11px] text-emerald-400">RAG Grounded</span>
+                  <h3 className="v3-feature-name">AI Chat Tutor</h3>
+                  <span className="v3-feature-tag text-emerald-400">RAG Grounded</span>
                 </div>
               </div>
-              <p className="text-xs text-secondary mb-3">
+              <p className="v3-feature-desc">
                 Conversational study assistant answering questions with citations from your notes.
               </p>
-              <span className="text-xs text-primary font-semibold flex items-center gap-1">
+              <span className="v3-feature-link">
                 Open Tutor Chat →
               </span>
             </Link>
 
-            <Link to="/documents" className="card-3d p-4 flex flex-col justify-between hover:border-indigo-500 transition-all">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+            <Link to="/documents" className="v3-feature-card">
+              <div className="v3-feature-header">
+                <div className="v3-feature-icon emerald">
                   <FileText size={22} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm">Knowledge Base</h3>
-                  <span className="text-[11px] text-secondary">PDF & Text Docs</span>
+                  <h3 className="v3-feature-name">Knowledge Base</h3>
+                  <span className="v3-feature-tag">PDF & Text Docs</span>
                 </div>
               </div>
-              <p className="text-xs text-secondary mb-3">
+              <p className="v3-feature-desc">
                 Upload textbooks and lecture notes to index into the vector database.
               </p>
-              <span className="text-xs text-primary font-semibold flex items-center gap-1">
+              <span className="v3-feature-link">
                 Manage Documents →
               </span>
             </Link>
 
-            <Link to="/flashcards" className="card-3d p-4 flex flex-col justify-between hover:border-indigo-500 transition-all">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400">
+            <Link to="/flashcards" className="v3-feature-card">
+              <div className="v3-feature-header">
+                <div className="v3-feature-icon purple">
                   <Layers size={22} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm">AI Flashcards</h3>
-                  <span className="text-[11px] text-secondary">3D Flip Study</span>
+                  <h3 className="v3-feature-name">AI Flashcards</h3>
+                  <span className="v3-feature-tag">3D Flip Study</span>
                 </div>
               </div>
-              <p className="text-xs text-secondary mb-3">
+              <p className="v3-feature-desc">
                 Auto-generate active recall cards with difficulty ratings and mastery tracking.
               </p>
-              <span className="text-xs text-primary font-semibold flex items-center gap-1">
+              <span className="v3-feature-link">
                 Study Flashcards →
               </span>
             </Link>
 
-            <Link to="/notes" className="card-3d p-4 flex flex-col justify-between hover:border-indigo-500 transition-all">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-400">
+            <Link to="/notes" className="v3-feature-card">
+              <div className="v3-feature-header">
+                <div className="v3-feature-icon amber">
                   <BookOpen size={22} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm">Study Notes</h3>
-                  <span className="text-[11px] text-secondary">Key Takeaways</span>
+                  <h3 className="v3-feature-name">Study Notes</h3>
+                  <span className="v3-feature-tag">Key Takeaways</span>
                 </div>
               </div>
-              <p className="text-xs text-secondary mb-3">
+              <p className="v3-feature-desc">
                 AI-synthesized revision notes with code patterns and takeaways.
               </p>
-              <span className="text-xs text-primary font-semibold flex items-center gap-1">
+              <span className="v3-feature-link">
                 Read Notes →
               </span>
             </Link>
@@ -687,14 +700,14 @@ export default function DashboardPage() {
           ) : (
             <div className="grid-3">
               {achievements.map((ach) => (
-                <div key={ach.id} className="card-3d p-4 flex items-center gap-3.5 border-l-4 border-l-indigo-500">
-                  <div className="p-3 rounded-full bg-indigo-500/15 text-indigo-400 shrink-0">
+                <div key={ach.id} className="achievement-card">
+                  <div className="achievement-icon-wrap">
                     <Award size={22} />
                   </div>
                   <div>
                     <h4 className="font-bold text-sm text-primary">{ach.badge_name}</h4>
                     <p className="text-xs text-secondary mt-0.5">{ach.description}</p>
-                    <span className="text-[10px] text-muted block mt-1">
+                    <span className="text-xs text-muted block mt-1" style={{ fontSize: '0.7rem' }}>
                       Unlocked on {new Date(ach.earned_at).toLocaleDateString()}
                     </span>
                   </div>
