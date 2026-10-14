@@ -1,0 +1,139 @@
+/* ============================================================
+   ReadinessPage — Placement Readiness & Skill Gap Matrix
+   ============================================================ */
+
+.readiness-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .readiness-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Score Gauge Card ---- */
+.readiness-score-card {
+  text-align: center;
+  padding: 1.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.score-circle-outer {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(var(--clr-indigo-500) calc(var(--score-pct) * 1%), var(--bg-secondary) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem auto;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.20);
+}
+
+.score-circle-inner {
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.score-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+/* Breakdown Bars */
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+/* ---- Company Cards ---- */
+.company-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.company-select-card {
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.company-select-card:hover {
+  border-color: var(--clr-indigo-400);
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateY(-2px);
+}
+
+.company-select-card.active {
+  border-color: var(--clr-indigo-500);
+  background: rgba(99, 102, 241, 0.10);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15);
+}
+
+/* ---- Skill Gap Table ---- */
+.skill-gap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.skill-gap-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.skill-name-col {
+  width: 140px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.skill-bar-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

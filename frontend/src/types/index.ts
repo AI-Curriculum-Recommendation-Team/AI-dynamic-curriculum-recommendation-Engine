@@ -267,3 +267,105 @@ export interface StudentNote {
   curriculum_week_id?: number;
   generated_at: string;
 }
+
+// ---- Version 4 Types (Adaptive Curriculum & Placement Engine) ----
+export interface CurriculumRecalibration {
+  id: number;
+  trigger_type: string;
+  trigger_source_title?: string;
+  reason: string;
+  changes_summary: string[];
+  ai_recommendations?: string;
+  recalibrated_at: string;
+}
+
+export interface ResumeSkillItem {
+  name: string;
+  level: string;
+  confidence: number;
+  category?: string;
+}
+
+export interface ResumeProfile {
+  has_resume: boolean;
+  resume_id?: number;
+  filename?: string;
+  uploaded_at?: string;
+  parsed_data?: {
+    candidate_name?: string;
+    headline_or_summary?: string;
+    education?: string;
+    years_of_experience?: number;
+    top_projects?: Array<{ title: string; technologies: string[]; description: string }>;
+  };
+  skills?: ResumeSkillItem[];
+}
+
+export interface CompanyProfile {
+  id: number;
+  company_name: string;
+  tier: string;
+  target_role: string;
+  difficulty_level: string;
+  description: string;
+  core_tech_stack: string[];
+  interview_focus_areas: string[];
+}
+
+export interface CodingChallenge {
+  id: number;
+  curriculum_week_id?: number;
+  title: string;
+  topic: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  problem_statement: string;
+  constraints?: string;
+  starter_code: Record<string, string>;
+  visible_test_cases: Array<{ input: string; expected_output: string; explanation?: string }>;
+  hints_count: number;
+  latest_submission?: {
+    id: number;
+    passed: boolean;
+    score: number;
+    code: string;
+    language: string;
+    time_complexity?: string;
+    ai_review?: string;
+    submitted_at?: string;
+  };
+}
+
+export interface CodingSubmissionResult {
+  submission_id: number;
+  passed: boolean;
+  score: number;
+  tests_passed: number;
+  tests_total: number;
+  time_complexity_detected?: string;
+  space_complexity_detected?: string;
+  ai_review: string;
+  solution_explanation?: string;
+}
+
+export interface SkillGapItem {
+  skill: string;
+  target_level: number;
+  current_level: number;
+  status: 'mastered' | 'in_progress' | 'needs_focus';
+}
+
+export interface CareerReadinessMetrics {
+  overall_score: number;
+  curriculum_completion_score: number;
+  quiz_mastery_score: number;
+  coding_score: number;
+  target_company?: {
+    id: number;
+    company_name: string;
+    tier: string;
+    target_role: string;
+  };
+  skill_gap_matrix: SkillGapItem[];
+  recommended_action: string;
+}
+

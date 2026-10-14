@@ -11,6 +11,11 @@ from app.models.v3_models import (
     Document, DocumentChunk, ChatSession, ChatMessage,
     Flashcard, FlashcardItem, StudentNote
 )
+from app.models.v4_models import (
+    Resume, ResumeSkill, CompanyCurriculumProfile,
+    CurriculumRecalibration, CurriculumCodingChallenge,
+    CodingSubmission, CareerReadiness
+)
 
 __all__ = [
     "User", "Student", "Skill", "StudentSkill", "CareerGoal",
@@ -19,4 +24,7 @@ __all__ = [
     "TopicQuiz", "QuizQuestion", "QuizAttempt", "WeeklyReport", "Achievement",
     "Document", "DocumentChunk", "ChatSession", "ChatMessage",
     "Flashcard", "FlashcardItem", "StudentNote",
+    "Resume", "ResumeSkill", "CompanyCurriculumProfile",
+    "CurriculumRecalibration", "CurriculumCodingChallenge",
+    "CodingSubmission", "CareerReadiness",
 ]

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, Clock, Circle, PlayCircle, Zap, Sparkles, Brain, ExternalLink } from 'lucide-react';
+import { CheckCircle2, Clock, Circle, PlayCircle, Zap, Sparkles, ExternalLink, RefreshCw, History } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { curriculumService, progressService } from '../../services';
-import type { RoadmapData } from '../../types';
+import type { RoadmapData, CurriculumRecalibration } from '../../types';
 import TopicQuizModal from '../../components/TopicQuizModal/TopicQuizModal';
 import GuidedJourneyFlow from '../../components/GuidedJourneyFlow/GuidedJourneyFlow';
 import './RoadmapPage.css';
@@ -18,11 +18,40 @@ export default function RoadmapPage() {
   const [roadmap, setRoadmap] = useState<RoadmapData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeQuiz, setActiveQuiz] = useState<{ id: number; topic: string } | null>(null);
+  const [recalibrating, setRecalibrating] = useState(false);
+  const [recalibrations, setRecalibrations] = useState<CurriculumRecalibration[]>([]);
+  const [showRecalHistory, setShowRecalHistory] = useState(false);
 
   const fetchRoadmap = () => {
     curriculumService.getRoadmap()
       .then(setRoadmap)
       .catch(() => toast.error('Failed to load roadmap'));
+  };
+
+  const handleRecalibrate = async () => {
+    setRecalibrating(true);
+    try {
+      const res = await curriculumService.recalibrate();
+      toast.success(res.message);
+      fetchRoadmap();
+      // Load updated recalibrations list
+      const recs = await curriculumService.getRecalibrations();
+      setRecalibrations(recs);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || 'Recalibration failed');
+    } finally {
+      setRecalibrating(false);
+    }
+  };
+
+  const handleOpenHistory = async () => {
+    setShowRecalHistory(true);
+    try {
+      const recs = await curriculumService.getRecalibrations();
+      setRecalibrations(recs);
+    } catch {
+      toast.error('Could not load recalibration history');
+    }
   };
 
   useEffect(() => {
@@ -93,11 +122,42 @@ export default function RoadmapPage() {
             </p>
           </div>
           <div className="flex gap-3 flex-wrap items-center">
-            <Link to="/curriculum" className="btn btn-secondary">
-              <Sparkles size={15} /> Stage 4: AI Curriculum
-            </Link>
-            <Link to="/tutor" className="btn btn-primary btn-glow">
-              <Brain size={15} /> Open AI Tutor
+            <button
+              className="btn btn-secondary"
+              onClick={handleOpenHistory}
+              title="View how AI adapted your curriculum over time"
+              id="recal-history-btn"
+            >
+              <History size={15} /> Recalibration Log
+            </button>
+            <button
+              className="btn btn-primary btn-glow"
+              onClick={handleRecalibrate}
+              disabled={recalibrating}
+              id="ai-recalibrate-btn"
+            >
+              {recalibrating ? (
+                <div className="spinner" style={{ width: 14, height: 14 }} />
+              ) : (
+                <>
+                  <RefreshCw size={15} /> Recalibrate with AI
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Recalibration Banner */}
+        <div className="card-3d mb-6 animate-fade-up delay-100" style={{ padding: '0.85rem 1.25rem', background: 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(16,185,129,0.06) 100%)', borderColor: 'rgba(99,102,241,0.25)' }}>
+          <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="badge badge-indigo text-xs">V4 Closed-Loop Engine</span>
+              <span className="text-secondary font-medium">
+                Your performance in quizzes and coding challenges actively adapts upcoming weeks.
+              </span>
+            </div>
+            <Link to="/coding-lab" className="text-indigo-500 font-semibold flex items-center gap-1 hover:underline">
+              Take Active Week Coding Lab <ExternalLink size={12} />
             </Link>
           </div>
         </div>
@@ -245,6 +305,43 @@ export default function RoadmapPage() {
             onClose={() => setActiveQuiz(null)}
             onAdapted={fetchRoadmap}
           />
+        )}
+        {/* Recalibration History Modal */}
+        {showRecalHistory && (
+          <div className="modal-overlay" onClick={() => setShowRecalHistory(false)}>
+            <div className="modal-card card-3d animate-scale-up" onClick={e => e.stopPropagation()} style={{ maxWidth: 600 }}>
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2">
+                  <History size={20} className="text-indigo-500" />
+                  <h3 className="text-base font-bold">AI Recalibration History</h3>
+                </div>
+                <button className="btn btn-ghost btn-sm" onClick={() => setShowRecalHistory(false)}>✕</button>
+              </div>
+
+              <div style={{ maxHeight: 380, overflowY: 'auto' }}>
+                {recalibrations.length === 0 ? (
+                  <p className="text-sm text-muted text-center py-6">
+                    No recalibrations recorded yet. Click "Recalibrate with AI" to adapt your roadmap based on quiz and coding scores.
+                  </p>
+                ) : (
+                  recalibrations.map((rc, i) => (
+                    <div key={rc.id || i} className="p-3 mb-3 bg-secondary rounded-lg border border-color text-xs">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="badge badge-indigo">{rc.trigger_type.replace('_', ' ')}</span>
+                        <span className="text-muted">{new Date(rc.recalibrated_at).toLocaleDateString()}</span>
+                      </div>
+                      <p className="font-semibold text-primary mt-1 mb-1.5">{rc.reason}</p>
+                      {rc.changes_summary && rc.changes_summary.length > 0 && (
+                        <ul className="list-disc pl-4 text-muted space-y-0.5">
+                          {rc.changes_summary.map((ch, idx) => <li key={idx}>{ch}</li>)}
+                        </ul>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

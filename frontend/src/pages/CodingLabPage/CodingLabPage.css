@@ -1,0 +1,124 @@
+/* ============================================================
+   Coding Lab Page — Multi-Language In-Browser Code Workspace
+   ============================================================ */
+
+.coding-lab-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .coding-lab-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Problem Statement Panel ---- */
+.problem-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.problem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.problem-description {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+
+.test-case-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+}
+
+.test-case-box code {
+  color: var(--clr-indigo-500);
+  font-weight: 600;
+}
+
+/* ---- Code Workspace Panel ---- */
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-md);
+}
+
+.editor-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.code-textarea {
+  width: 100%;
+  min-height: 380px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: #0d1117;
+  color: #c9d1d9;
+  resize: vertical;
+  outline: none;
+  tab-size: 4;
+}
+
+.code-textarea:focus {
+  border-color: var(--clr-indigo-500);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ---- Hints Box ---- */
+.hints-container {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.hint-item {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  margin-top: 0.45rem;
+  color: var(--text-primary);
+}
+
+/* ---- Review & Results Card ---- */
+.review-card {
+  border-radius: var(--radius-lg);
+  padding: 1.15rem;
+  margin-top: 0.75rem;
+}
+
+.review-card.success {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.30);
+}
+
+.review-card.fail {
+  background: rgba(244, 63, 94, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.30);
+}

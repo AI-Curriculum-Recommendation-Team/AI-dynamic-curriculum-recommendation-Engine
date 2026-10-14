@@ -5,6 +5,7 @@ Run on application startup.
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.models.student import CareerGoal, Assessment, AssessmentQuestion, Skill
+from app.models.v4_models import CompanyCurriculumProfile
 
 
 CAREER_GOALS_DATA = [
@@ -270,9 +271,143 @@ def seed_initial_data():
                 db.add(question)
 
         db.commit()
-        print("[SEED] Initial seed data created successfully!")
+        print("[SEED] Initial career goals and questions seeded!")
+
+        # Seed Company Curriculum Profiles
+        seed_company_profiles(db)
+
+        print("[SEED] All initial seed data created successfully!")
     except Exception as e:
         db.rollback()
         print(f"[SEED] Seeding failed: {e}")
     finally:
         db.close()
+
+
+COMPANY_PROFILES_DATA = [
+    {
+        "company_name": "Google",
+        "tier": "tier_1_product",
+        "target_role": "Software Engineer (L3/L4)",
+        "difficulty_level": "Hard",
+        "description": "Focuses on fundamental algorithmic problem solving, graph algorithms, asymptotic complexity analysis, and scalable system design.",
+        "core_tech_stack": [
+            "Data Structures & Algorithms",
+            "System Design",
+            "C++",
+            "Python",
+            "Distributed Systems",
+            "Graph Algorithms",
+            "Dynamic Programming"
+        ],
+        "interview_focus_areas": [
+            "Algorithmic Problem Solving",
+            "Optimal Time & Space Complexity",
+            "Concurrency & Large Scale Systems",
+            "Googleyness & Clean Code"
+        ],
+    },
+    {
+        "company_name": "Amazon",
+        "tier": "tier_1_product",
+        "target_role": "Software Development Engineer (SDE 1/2)",
+        "difficulty_level": "Hard",
+        "description": "Emphasizes practical data structures, Object-Oriented design, scalable cloud services, and Amazon Leadership Principles.",
+        "core_tech_stack": [
+            "Java",
+            "Python",
+            "Object-Oriented Design",
+            "AWS Cloud Architecture",
+            "Microservices",
+            "Data Structures",
+            "SQL & NoSQL"
+        ],
+        "interview_focus_areas": [
+            "Leadership Principles with STAR Method",
+            "Low-Level & High-Level System Design",
+            "Edge Cases & Robust Exception Handling"
+        ],
+    },
+    {
+        "company_name": "Microsoft",
+        "tier": "tier_1_product",
+        "target_role": "Software Engineer",
+        "difficulty_level": "Hard",
+        "description": "Prioritizes deep knowledge of computer science foundations, design patterns, scalable web architectures, and collaborative engineering.",
+        "core_tech_stack": [
+            "C#/.NET",
+            "Python",
+            "TypeScript/React",
+            "Azure Cloud",
+            "Operating Systems & Multithreading",
+            "Data Structures",
+            "REST APIs"
+        ],
+        "interview_focus_areas": [
+            "Data Structures & Algorithmic Problem Solving",
+            "Design Patterns & Code Modularity",
+            "Cloud Scalability & Reliability"
+        ],
+    },
+    {
+        "company_name": "Fast-Paced AI Startup",
+        "tier": "high_growth_startup",
+        "target_role": "Full Stack AI Developer",
+        "difficulty_level": "Medium-Hard",
+        "description": "Prioritizes rapid product iteration, full-stack competency, modern LLM/RAG orchestration, vector databases, and responsive UX.",
+        "core_tech_stack": [
+            "Python",
+            "FastAPI",
+            "TypeScript/React",
+            "LLMs & RAG Engines",
+            "Vector Databases",
+            "Docker",
+            "PostgreSQL"
+        ],
+        "interview_focus_areas": [
+            "Rapid Prototyping & Practical Code Delivery",
+            "AI/RAG System Architecture & Prompt Optimization",
+            "Full-Stack API Design & End-to-End Problem Solving"
+        ],
+    },
+    {
+        "company_name": "TCS (Digital / Prime Track)",
+        "tier": "enterprise_it",
+        "target_role": "Digital Specialist Engineer",
+        "difficulty_level": "Medium",
+        "description": "Focuses on solid core programming fundamentals, relational database mastery, enterprise frameworks, and structured problem solving.",
+        "core_tech_stack": [
+            "Java",
+            "Python",
+            "SQL",
+            "Spring Boot",
+            "Data Structures Fundamentals",
+            "Web Technologies",
+            "Software Engineering Methodologies"
+        ],
+        "interview_focus_areas": [
+            "Core Programming & OOP Concepts",
+            "Database Queries, Normalization & Joins",
+            "Aptitude & Technical Problem Solving"
+        ],
+    },
+]
+
+
+def seed_company_profiles(db: Session):
+    for comp_data in COMPANY_PROFILES_DATA:
+        existing = db.query(CompanyCurriculumProfile).filter(
+            CompanyCurriculumProfile.company_name == comp_data["company_name"]
+        ).first()
+        if not existing:
+            comp = CompanyCurriculumProfile(
+                company_name=comp_data["company_name"],
+                tier=comp_data["tier"],
+                target_role=comp_data["target_role"],
+                difficulty_level=comp_data["difficulty_level"],
+                description=comp_data["description"],
+                core_tech_stack=comp_data["core_tech_stack"],
+                interview_focus_areas=comp_data["interview_focus_areas"],
+            )
+            db.add(comp)
+    db.commit()

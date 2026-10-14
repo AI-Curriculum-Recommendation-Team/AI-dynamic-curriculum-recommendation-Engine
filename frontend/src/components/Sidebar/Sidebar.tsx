@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Target, Brain, Map,
   FileText, Layers, StickyNote, Shield, X,
+  Code2, Award,
 } from 'lucide-react';
 import { useAuthStore } from '../../store';
 import './Sidebar.css';
@@ -16,10 +17,17 @@ const NAV_SECTIONS = [
   {
     label: 'Main',
     links: [
-      { to: '/dashboard',  label: 'Dashboard',  icon: LayoutDashboard },
+      { to: '/dashboard',  label: 'Dashboard',   icon: LayoutDashboard },
       { to: '/career',     label: 'Career Goal', icon: Target },
       { to: '/curriculum', label: 'Curriculum',  icon: Brain },
-      { to: '/roadmap',    label: 'Roadmap',     icon: Map },
+      { to: '/roadmap',    label: 'Roadmap',      icon: Map },
+    ],
+  },
+  {
+    label: 'Adaptive Lab',
+    links: [
+      { to: '/coding-lab', label: 'Coding Lab',   icon: Code2 },
+      { to: '/readiness',  label: 'Readiness AI', icon: Award },
     ],
   },
   {

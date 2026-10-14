@@ -10,6 +10,10 @@ from app.models.v3_models import (
     Document, DocumentChunk, ChatSession, ChatMessage,
     Flashcard, FlashcardItem, StudentNote
 )
+from app.models.v4_models import (
+    Resume, ResumeSkill, CurriculumRecalibration,
+    CurriculumCodingChallenge, CodingSubmission, CareerReadiness
+)
 
 
 def cleanup_student_learning_data(student_id: int, db: Session, keep_profile: bool = True):
@@ -68,6 +72,19 @@ def cleanup_student_learning_data(student_id: int, db: Session, keep_profile: bo
     db.query(AssessmentResult).filter(AssessmentResult.student_id == student_id).delete(synchronize_session=False)
     db.query(Notification).filter(Notification.student_id == student_id).delete(synchronize_session=False)
     db.query(StudentSkill).filter(StudentSkill.student_id == student_id).delete(synchronize_session=False)
+
+    # 9. Delete V4 Coding Submissions & Challenges
+    db.query(CodingSubmission).filter(CodingSubmission.student_id == student_id).delete(synchronize_session=False)
+    db.query(CurriculumCodingChallenge).filter(CurriculumCodingChallenge.student_id == student_id).delete(synchronize_session=False)
+
+    # 10. Delete V4 Recalibrations, Resumes, and Career Readiness
+    db.query(CurriculumRecalibration).filter(CurriculumRecalibration.student_id == student_id).delete(synchronize_session=False)
+    db.query(CareerReadiness).filter(CareerReadiness.student_id == student_id).delete(synchronize_session=False)
+
+    resume_ids = [r.id for r in db.query(Resume.id).filter(Resume.student_id == student_id).all()]
+    if resume_ids:
+        db.query(ResumeSkill).filter(ResumeSkill.resume_id.in_(resume_ids)).delete(synchronize_session=False)
+        db.query(Resume).filter(Resume.student_id == student_id).delete(synchronize_session=False)
 
     if keep_profile:
         student.career_goal_id = None

@@ -85,6 +85,19 @@ export const curriculumService = {
 
   getWeeklyReport: () =>
     api.get<{ report: string; completion_percentage: number }>('/curriculum/report/weekly').then(r => r.data),
+
+  recalibrate: () =>
+    api.post<{
+      message: string;
+      recalibration_id: number;
+      reason: string;
+      changes_summary: string[];
+      ai_recommendations: string;
+      total_weeks: number;
+    }>('/v4/curriculum/recalibrate').then(r => r.data),
+
+  getRecalibrations: () =>
+    api.get<import('../types').CurriculumRecalibration[]>('/v4/curriculum/recalibrations').then(r => r.data),
 };
 
 // ---- Progress ----
@@ -226,3 +239,70 @@ export const noteService = {
   delete: (id: number) =>
     api.delete(`/v3/notes/${id}`).then(r => r.data),
 };
+
+// ---- Version 4 Services (Adaptive Curriculum & Placement Engine) ----
+export const resumeService = {
+  uploadAndAdapt: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<{
+      message: string;
+      resume_id: number;
+      candidate_name: string;
+      skills_detected: number;
+      fast_tracked_skills: string[];
+      critical_skill_gaps: string[];
+      rationale: string;
+    }>('/v4/resume/upload-and-adapt', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data);
+  },
+
+  getLatest: () =>
+    api.get<import('../types').ResumeProfile>('/v4/resume/latest').then(r => r.data),
+};
+
+export const companyService = {
+  list: () =>
+    api.get<import('../types').CompanyProfile[]>('/v4/companies').then(r => r.data),
+
+  applyTarget: (company_id: number) =>
+    api.post<{
+      message: string;
+      company_name: string;
+      tier: string;
+      target_role: string;
+      core_tech_stack: string[];
+      changes_summary: string[];
+    }>('/v4/companies/apply-target', { company_id }).then(r => r.data),
+};
+
+export const codingLabService = {
+  getCurrentWeekChallenge: () =>
+    api.get<import('../types').CodingChallenge>('/v4/coding/current-week').then(r => r.data),
+
+  listChallenges: () =>
+    api.get<Array<{
+      id: number;
+      title: string;
+      topic: string;
+      difficulty: string;
+      curriculum_week_id?: number;
+      has_submitted: boolean;
+      passed: boolean;
+      latest_score?: number;
+      created_at?: string;
+    }>>('/v4/coding/challenges').then(r => r.data),
+
+  getHints: (challengeId: number) =>
+    api.get<{ challenge_id: number; title: string; hints: string[] }>(`/v4/coding/${challengeId}/hints`).then(r => r.data),
+
+  submit: (challengeId: number, code: string, language: string = 'python') =>
+    api.post<import('../types').CodingSubmissionResult>(`/v4/coding/${challengeId}/submit`, { code, language }).then(r => r.data),
+};
+
+export const readinessService = {
+  getMetrics: () =>
+    api.get<import('../types').CareerReadinessMetrics>('/v4/readiness').then(r => r.data),
+};
+

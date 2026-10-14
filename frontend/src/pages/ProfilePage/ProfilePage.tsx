@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
+import { Save, RotateCcw, Trash2, AlertTriangle, FileText, Upload, Sparkles, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { studentService } from '../../services';
+import { studentService, resumeService } from '../../services';
 import { useStudentStore, useAuthStore } from '../../store';
-import type { StudentSkill } from '../../types';
+import type { StudentSkill, ResumeProfile } from '../../types';
 import './ProfilePage.css';
 
 const SKILLS_SUGGESTIONS = [
@@ -33,11 +33,18 @@ export default function ProfilePage() {
   const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Resume Fast-Tracking V4
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeProfile, setResumeProfile] = useState<ResumeProfile | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     Promise.all([
       studentService.getProfile().catch(() => null),
       studentService.getSkills().catch(() => []),
-    ]).then(([prof, sk]) => {
+      resumeService.getLatest().catch(() => null),
+    ]).then(([prof, sk, resProf]) => {
       if (prof) {
         setStudent(prof);
         setForm({ full_name: prof.full_name, education: prof.education || '', learning_preference: prof.learning_preference });
@@ -48,6 +55,9 @@ export default function ProfilePage() {
           level: s.self_rated_level,
           score: s.proficiency_score,
         })));
+      }
+      if (resProf) {
+        setResumeProfile(resProf);
       }
     }).finally(() => setLoading(false));
   }, []);
@@ -128,6 +138,27 @@ export default function ProfilePage() {
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || 'Failed to delete account');
       setDeleting(false);
+    }
+  };
+
+  const handleUploadResume = async () => {
+    if (!resumeFile) {
+      toast.error('Please select a resume file first.');
+      return;
+    }
+
+    setResumeUploading(true);
+    try {
+      const res = await resumeService.uploadAndAdapt(resumeFile);
+      toast.success(`Resume parsed! ${res.skills_detected} skills extracted and curriculum accelerated! 🎉`);
+      // Reload profile and latest resume
+      const latest = await resumeService.getLatest();
+      setResumeProfile(latest);
+      setResumeFile(null);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || 'Failed to parse resume');
+    } finally {
+      setResumeUploading(false);
     }
   };
 
@@ -243,6 +274,68 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* V4 Resume & Prior Knowledge Fast-Tracker */}
+        <div className="card-3d mt-6 animate-fade-up delay-250">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles size={20} className="text-indigo-500" />
+            <h3 className="text-base font-bold">Resume & Prior Knowledge Curriculum Fast-Tracker</h3>
+            <span className="badge badge-indigo text-xs">Version 4</span>
+          </div>
+          <p className="text-xs text-muted mb-4">
+            Upload your resume or marksheet. Our AI will analyze your existing technical competencies and dynamically skip topics you have already mastered in your curriculum.
+          </p>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept=".pdf,.txt,.docx"
+              style={{ display: 'none' }}
+              onChange={e => e.target.files?.[0] && setResumeFile(e.target.files[0])}
+            />
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => fileInputRef.current?.click()}
+              id="choose-resume-btn"
+            >
+              <FileText size={15} /> {resumeFile ? resumeFile.name : 'Choose Resume (PDF / TXT)'}
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-primary btn-sm btn-glow"
+              onClick={handleUploadResume}
+              disabled={!resumeFile || resumeUploading}
+              id="analyze-resume-btn"
+            >
+              {resumeUploading ? (
+                <div className="spinner" style={{ width: 14, height: 14 }} />
+              ) : (
+                <>
+                  <Upload size={14} /> Analyze & Fast-Track Curriculum
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* If resume exists, show detected skills */}
+          {resumeProfile?.has_resume && resumeProfile.skills && resumeProfile.skills.length > 0 && (
+            <div className="mt-4 pt-3 border-t border-color text-xs">
+              <span className="text-muted font-bold block mb-2">
+                Verified Skills Extracted from Latest Resume ({resumeProfile.filename}):
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {resumeProfile.skills.map(sk => (
+                  <span key={sk.name} className="badge badge-emerald text-xs flex items-center gap-1">
+                    <CheckCircle2 size={11} /> {sk.name} ({sk.level})
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end mt-6 animate-fade-up delay-300">

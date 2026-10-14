@@ -19,6 +19,8 @@ import TutorPage from './pages/TutorPage/TutorPage';
 import DocumentsPage from './pages/DocumentsPage/DocumentsPage';
 import FlashcardsPage from './pages/FlashcardsPage/FlashcardsPage';
 import NotesPage from './pages/NotesPage/NotesPage';
+import CodingLabPage from './pages/CodingLabPage/CodingLabPage';
+import ReadinessPage from './pages/ReadinessPage/ReadinessPage';
 import { useAuthStore, useThemeStore } from './store';
 
 // ── Auth Guards ──────────────────────────────────────────────────
@@ -100,6 +102,8 @@ function AppLayout({ sidebarCollapsed, onToggleSidebar }: {
             <Route path="/documents"  element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
             <Route path="/flashcards" element={<ProtectedRoute><FlashcardsPage /></ProtectedRoute>} />
             <Route path="/notes"      element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
+            <Route path="/coding-lab" element={<ProtectedRoute><CodingLabPage /></ProtectedRoute>} />
+            <Route path="/readiness"  element={<ProtectedRoute><ReadinessPage /></ProtectedRoute>} />
 
             {/* Protected — Admin */}
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
