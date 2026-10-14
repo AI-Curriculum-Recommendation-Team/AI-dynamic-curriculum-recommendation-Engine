@@ -102,3 +102,26 @@ def set_career_goal(
     student.career_goal_id = data.career_goal_id
     db.commit()
     return {"message": f"Career goal set to: {goal.title}"}
+
+
+@router.post("/reset-progress")
+def reset_user_progress(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """User: Reset all learning progress, curriculum, quiz attempts, and career goal to start fresh."""
+    student = get_student_or_404(current_user, db)
+    from app.services.user_service import cleanup_student_learning_data
+    cleanup_student_learning_data(student.id, db, keep_profile=True)
+    return {"message": "Your learning journey and curriculum have been reset. You can now start fresh from Stage 1!"}
+
+
+@router.delete("/account")
+def delete_user_account(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """User: Permanently delete your own account and all associated data."""
+    from app.services.user_service import delete_user_completely
+    delete_user_completely(current_user.id, db)
+    return {"message": "Account deleted successfully."}

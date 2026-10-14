@@ -35,6 +35,12 @@ export const studentService = {
 
   setCareerGoal: (career_goal_id: number) =>
     api.post('/students/career', { career_goal_id }).then(r => r.data),
+
+  resetProgress: () =>
+    api.post<{ message: string }>('/students/reset-progress').then(r => r.data),
+
+  deleteAccount: () =>
+    api.delete<{ message: string }>('/students/account').then(r => r.data),
 };
 
 // ---- Career Goals ----
@@ -116,6 +122,9 @@ export const adminService = {
     api.put(`/admin/users/${user_id}/role?role=${role}`).then(r => r.data),
 
   getStats: () => api.get<PlatformStats>('/admin/stats').then(r => r.data),
+
+  deleteUser: (user_id: number) =>
+    api.delete<{ message: string; user_id: number }>(`/admin/users/${user_id}`).then(r => r.data),
 };
 
 // ---- V2 Services ----

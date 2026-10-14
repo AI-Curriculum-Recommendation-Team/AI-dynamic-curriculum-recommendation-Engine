@@ -69,6 +69,24 @@ def change_user_role(
     return {"message": f"Role updated to {role}"}
 
 
+@router.delete("/users/{user_id}")
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    """Admin: Permanently delete a user and all their learning data."""
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own admin account")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    from app.services.user_service import delete_user_completely
+    delete_user_completely(user_id, db)
+    return {"message": "User deleted successfully", "user_id": user_id}
+
+
 @router.get("/stats", response_model=PlatformStats)
 def get_platform_stats(
     db: Session = Depends(get_db),

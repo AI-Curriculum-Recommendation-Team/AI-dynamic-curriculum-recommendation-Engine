@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BarChart2, Users, BookOpen, Activity, UserCheck, UserX, Shield } from 'lucide-react';
+import { BarChart2, Users, BookOpen, Activity, UserCheck, UserX, Shield, Trash2 } from 'lucide-react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import toast from 'react-hot-toast';
@@ -42,6 +42,22 @@ export default function AdminDashboard() {
       toast.success('Role updated');
     } catch {
       toast.error('Failed to change role');
+    }
+  };
+
+  const handleDeleteUser = async (userId: number, email: string) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete user "${email}"?\n\nThis will permanently remove their profile, all generated curricula, quizzes, and learning data.\nThis action cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await adminService.deleteUser(userId);
+      setUsers(prev => prev.filter(u => u.id !== userId));
+      setStats(prev => prev ? { ...prev, total_users: Math.max(0, prev.total_users - 1) } : null);
+      toast.success(`User "${email}" deleted successfully!`);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || 'Failed to delete user');
     }
   };
 
@@ -159,13 +175,24 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td>
-                        <button
-                          className={`btn btn-sm ${user.is_active ? 'btn-ghost' : 'btn-secondary'}`}
-                          onClick={() => handleToggleActive(user.id)}
-                          title={user.is_active ? 'Deactivate' : 'Activate'}
-                        >
-                          {user.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            className={`btn btn-sm ${user.is_active ? 'btn-ghost' : 'btn-secondary'}`}
+                            onClick={() => handleToggleActive(user.id)}
+                            title={user.is_active ? 'Deactivate User' : 'Activate User'}
+                            aria-label={user.is_active ? 'Deactivate User' : 'Activate User'}
+                          >
+                            {user.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
+                          </button>
+                          <button
+                            className="btn btn-sm btn-ghost admin-del-btn"
+                            onClick={() => handleDeleteUser(user.id, user.email)}
+                            title="Permanently Delete User"
+                            aria-label={`Delete ${user.email}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

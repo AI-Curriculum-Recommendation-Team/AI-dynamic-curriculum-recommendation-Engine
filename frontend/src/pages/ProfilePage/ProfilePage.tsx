@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save } from 'lucide-react';
+import { Save, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { studentService } from '../../services';
-import { useStudentStore } from '../../store';
+import { useStudentStore, useAuthStore } from '../../store';
 import type { StudentSkill } from '../../types';
 import './ProfilePage.css';
 
@@ -16,6 +16,7 @@ const SKILLS_SUGGESTIONS = [
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { student, setStudent } = useStudentStore();
+  const { clearAuth } = useAuthStore();
   const [form, setForm] = useState<{
     full_name: string;
     education: string;
@@ -28,6 +29,8 @@ export default function ProfilePage() {
   const [skills, setSkills] = useState<Array<{ name: string; level: string; score: number }>>([]);
   const [newSkill, setNewSkill] = useState('');
   const [saving, setSaving] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,6 +80,54 @@ export default function ProfilePage() {
       toast.error('Failed to save profile');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleResetProgress = async () => {
+    const confirmed = window.confirm(
+      '⚠️ Are you sure you want to clear your learning journey?\n\n' +
+      'This will reset your selected career path, curriculum roadmap, weekly milestones, quizzes, flashcards, and notes so you can start completely fresh.\n\n' +
+      'Your account profile and login credentials will NOT be deleted.'
+    );
+    if (!confirmed) return;
+
+    setResetting(true);
+    try {
+      await studentService.resetProgress();
+      const prof = await studentService.getProfile();
+      setStudent(prof);
+      toast.success('Learning journey reset! Choose your career goal to restart. 🚀');
+      navigate('/career');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || 'Failed to reset learning journey');
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmation = window.prompt(
+      '🚨 PERMANENT ACCOUNT DELETION 🚨\n\n' +
+      'This action CANNOT be undone. This will permanently delete your user account, login credentials, and all learning history.\n\n' +
+      'To permanently delete your account, type "DELETE" below:'
+    );
+    if (confirmation !== 'DELETE') {
+      if (confirmation !== null) {
+        toast.error('Deletion cancelled. You must type DELETE to confirm.');
+      }
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await studentService.deleteAccount();
+      clearAuth();
+      setStudent(null);
+      toast.success('Your account has been permanently deleted. Goodbye! 👋');
+      navigate('/');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || 'Failed to delete account');
+      setDeleting(false);
     }
   };
 
@@ -203,6 +254,74 @@ export default function ProfilePage() {
           >
             {saving ? <div className="spinner" /> : <><Save size={18} /> Save & Continue</>}
           </button>
+        </div>
+
+        {/* Danger Zone & Account Management */}
+        <div className="card-3d danger-zone-card mt-8 animate-fade-up delay-400">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle size={20} style={{ color: 'var(--clr-amber-500)' }} />
+            <h3 className="text-lg font-bold">Account Management & Data Controls</h3>
+          </div>
+          <p className="text-sm text-muted mb-5">
+            Manage your learning journey lifecycle or permanently delete your account and associated records.
+          </p>
+
+          <div className="danger-zone-grid">
+            {/* Clear learning data */}
+            <div className="danger-zone-action-box">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="danger-action-icon amber">
+                    <RotateCcw size={18} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-primary">Clear Learning Data & Start Fresh</h4>
+                    <span className="badge badge-amber text-xs">Resets Journey</span>
+                  </div>
+                </div>
+                <p className="text-xs text-muted mb-4">
+                  Reset your enrolled career path, weekly roadmaps, quizzes, flashcards, and notes. You can choose a new goal and restart from scratch. Your account credentials stay intact.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleResetProgress}
+                disabled={resetting || deleting}
+                id="reset-learning-data-btn"
+                style={{ borderColor: 'rgba(245, 158, 11, 0.4)', color: 'var(--clr-amber-500)' }}
+              >
+                {resetting ? <div className="spinner" style={{ width: 14, height: 14 }} /> : <><RotateCcw size={14} /> Clear Data & Restart Journey</>}
+              </button>
+            </div>
+
+            {/* Delete Account */}
+            <div className="danger-zone-action-box danger-box-border">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="danger-action-icon rose">
+                    <Trash2 size={18} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-rose-500">Permanently Delete Account</h4>
+                    <span className="badge badge-rose text-xs">Irreversible</span>
+                  </div>
+                </div>
+                <p className="text-xs text-muted mb-4">
+                  Permanently delete your profile, credentials, and all recorded learning history from our database. This action is irreversible.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn btn-danger btn-sm"
+                onClick={handleDeleteAccount}
+                disabled={resetting || deleting}
+                id="delete-account-btn"
+              >
+                {deleting ? <div className="spinner" style={{ width: 14, height: 14 }} /> : <><Trash2 size={14} /> Delete Account Permanently</>}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

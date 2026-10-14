@@ -183,3 +183,64 @@
 @media (max-width: 360px) {
   .pref-grid { grid-template-columns: 1fr; }
 }
+
+/* ---- Danger Zone & Account Controls ---- */
+.danger-zone-card {
+  border-color: rgba(244, 63, 94, 0.30);
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.03) 0%, var(--bg-card) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.danger-zone-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--clr-amber-500), var(--clr-rose-500));
+}
+
+.danger-zone-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.danger-zone-action-box {
+  padding: 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.danger-box-border {
+  border-color: rgba(244, 63, 94, 0.25);
+  background: rgba(244, 63, 94, 0.04);
+}
+
+.danger-action-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.danger-action-icon.amber {
+  background: rgba(245, 158, 11, 0.14);
+  color: var(--clr-amber-500);
+}
+
+.danger-action-icon.rose {
+  background: rgba(244, 63, 94, 0.14);
+  color: var(--clr-rose-500);
+}
+
+@media (max-width: 768px) {
+  .danger-zone-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
