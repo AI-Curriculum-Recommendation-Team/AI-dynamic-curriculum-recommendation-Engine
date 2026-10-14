@@ -5,14 +5,14 @@
 /* ---- Career Selection Grid ---- */
 .career-select-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.25rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
 }
 
 /* ---- Career Card ---- */
 .career-select-card {
-  padding: 2rem 1.75rem;
+  padding: 1.35rem 1.25rem;
   text-align: center;
   cursor: pointer;
   border: 2px solid var(--border-color);
@@ -74,29 +74,29 @@
 
 /* Career icon */
 .career-select-icon {
-  font-size: 3.25rem;
-  margin-bottom: 1rem;
+  font-size: 2.25rem;
+  margin-bottom: 0.75rem;
   display: block;
   transition: transform 0.3s ease;
   position: relative; z-index: 1;
 }
 
 .career-select-card:hover .career-select-icon {
-  transform: scale(1.15) translateY(-3px);
+  transform: scale(1.12) translateY(-2px);
 }
 
 .career-select-title {
-  font-size: 1.0625rem; font-weight: 700;
+  font-size: 0.95rem; font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
   position: relative; z-index: 1;
 }
 
 .career-select-desc {
-  font-size: 0.875rem;
-  line-height: 1.6;
+  font-size: 0.8rem;
+  line-height: 1.5;
   color: var(--text-secondary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   position: relative; z-index: 1;
 }
 
