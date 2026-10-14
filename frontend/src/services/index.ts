@@ -305,6 +305,9 @@ export const codingLabService = {
   getHints: (challengeId: number) =>
     api.get<{ challenge_id: number; title: string; hints: string[] }>(`/v4/coding/${challengeId}/hints`).then(r => r.data),
 
+  runCode: (challengeId: number, code: string, language: string = 'python') =>
+    api.post<import('../types').CodingRunResult>(`/v4/coding/${challengeId}/run`, { code, language }).then(r => r.data),
+
   submit: (challengeId: number, code: string, language: string = 'python') =>
     api.post<import('../types').CodingSubmissionResult>(`/v4/coding/${challengeId}/submit`, { code, language }).then(r => r.data),
 };

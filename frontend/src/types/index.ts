@@ -322,6 +322,7 @@ export interface CodingChallenge {
   constraints?: string;
   starter_code: Record<string, string>;
   visible_test_cases: Array<{ input: string; expected_output: string; explanation?: string }>;
+  hidden_tests_count?: number;
   hints_count: number;
   latest_submission?: {
     id: number;
@@ -335,12 +336,37 @@ export interface CodingChallenge {
   };
 }
 
+export interface CodingRunResult {
+  all_passed: boolean;
+  passed_count: number;
+  total_count: number;
+  test_results: Array<{
+    test_index: number;
+    input: string;
+    expected_output: string;
+    actual_output: string;
+    passed: boolean;
+    execution_time_ms?: number;
+  }>;
+  stdout?: string;
+  feedback?: string;
+}
+
 export interface CodingSubmissionResult {
   submission_id: number;
   passed: boolean;
   score: number;
   tests_passed: number;
   tests_total: number;
+  visible_test_results?: Array<{
+    test_index: number;
+    input: string;
+    expected_output: string;
+    actual_output: string;
+    passed: boolean;
+  }>;
+  hidden_tests_passed?: number;
+  hidden_tests_total?: number;
   time_complexity_detected?: string;
   space_complexity_detected?: string;
   ai_review: string;
@@ -351,6 +377,7 @@ export interface SkillGapItem {
   skill: string;
   target_level: number;
   current_level: number;
+  required_level?: number;
   status: 'mastered' | 'in_progress' | 'needs_focus';
 }
 
@@ -359,11 +386,14 @@ export interface CareerReadinessMetrics {
   curriculum_completion_score: number;
   quiz_mastery_score: number;
   coding_score: number;
+  company_match_percentage?: number;
+  benchmark_target?: number;
   target_company?: {
     id: number;
     company_name: string;
     tier: string;
     target_role: string;
+    benchmark_target?: number;
   };
   skill_gap_matrix: SkillGapItem[];
   recommended_action: string;

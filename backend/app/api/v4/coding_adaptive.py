@@ -8,7 +8,7 @@ from app.api.v1.auth import get_current_user
 from app.models.user import User
 from app.models.student import Student, Curriculum, CurriculumWeek
 from app.models.v4_models import CurriculumCodingChallenge, CodingSubmission, CareerReadiness
-from app.ai.coding_lab_engine import generate_curriculum_challenge, evaluate_code_submission
+from app.ai.coding_lab_engine import generate_curriculum_challenge, evaluate_code_submission, run_code_against_visible_tests
 
 router = APIRouter(prefix="/coding", tags=["V4 Curriculum Coding Labs"])
 
@@ -163,6 +163,36 @@ def get_progressive_hints(
     }
 
 
+@router.post("/{challenge_id}/run")
+def run_code_against_open_tests(
+    challenge_id: int,
+    req: CodeSubmissionRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Executes student code against ONLY visible/open test cases.
+    Does not register a formal graded submission; designed for fast debugging.
+    """
+    student = db.query(Student).filter(Student.user_id == current_user.id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student profile not found")
+
+    challenge = db.query(CurriculumCodingChallenge).filter(CurriculumCodingChallenge.id == challenge_id).first()
+    if not challenge:
+        raise HTTPException(status_code=404, detail="Challenge not found")
+
+    run_result = run_code_against_visible_tests(
+        problem_title=challenge.title,
+        problem_statement=challenge.problem_statement,
+        student_code=req.code,
+        language=req.language,
+        visible_tests=challenge.visible_test_cases or [],
+    )
+
+    return run_result
+
+
 @router.post("/{challenge_id}/submit")
 def submit_code_solution(
     challenge_id: int,
@@ -192,6 +222,8 @@ def submit_code_solution(
         hidden_tests=challenge.hidden_test_cases or [],
     )
 
+    total_tests = len(challenge.visible_test_cases or []) + len(challenge.hidden_test_cases or [])
+
     submission = CodingSubmission(
         challenge_id=challenge.id,
         student_id=student.id,
@@ -199,7 +231,7 @@ def submit_code_solution(
         language=req.language,
         passed=eval_result.get("passed", False),
         tests_passed=eval_result.get("tests_passed", 0),
-        tests_total=eval_result.get("tests_total", len(challenge.visible_test_cases or [])),
+        tests_total=eval_result.get("tests_total", total_tests),
         time_complexity_detected=eval_result.get("time_complexity_detected", "O(N)"),
         space_complexity_detected=eval_result.get("space_complexity_detected", "O(1)"),
         ai_review=eval_result.get("ai_review", "Code evaluated successfully."),
@@ -213,7 +245,6 @@ def submit_code_solution(
         readiness = CareerReadiness(student_id=student.id, coding_score=submission.score)
         db.add(readiness)
     else:
-        # Rolling average
         all_scores = [
             s.score for s in db.query(CodingSubmission.score).filter(CodingSubmission.student_id == student.id).all()
         ] + [submission.score]
@@ -228,6 +259,9 @@ def submit_code_solution(
         "score": submission.score,
         "tests_passed": submission.tests_passed,
         "tests_total": submission.tests_total,
+        "visible_test_results": eval_result.get("visible_test_results", []),
+        "hidden_tests_passed": eval_result.get("hidden_tests_passed", 0),
+        "hidden_tests_total": eval_result.get("hidden_tests_total", len(challenge.hidden_test_cases or [])),
         "time_complexity_detected": submission.time_complexity_detected,
         "space_complexity_detected": submission.space_complexity_detected,
         "ai_review": submission.ai_review,
@@ -253,6 +287,7 @@ def _format_challenge_response(challenge: CurriculumCodingChallenge, db: Session
         "constraints": challenge.constraints,
         "starter_code": challenge.starter_code or {},
         "visible_test_cases": challenge.visible_test_cases or [],
+        "hidden_tests_count": len(challenge.hidden_test_cases or [1, 2]),
         "hints_count": len(challenge.hints or []),
         "latest_submission": {
             "id": latest_sub.id,

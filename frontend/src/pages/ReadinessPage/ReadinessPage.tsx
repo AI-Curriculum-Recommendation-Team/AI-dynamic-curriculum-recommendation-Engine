@@ -80,14 +80,25 @@ export default function ReadinessPage() {
               Real-time multi-dimensional scoring and live curriculum alignment with target companies.
             </p>
           </div>
-          <button
-            type="button"
-            className="btn btn-primary btn-glow flex items-center gap-2"
-            onClick={() => setDossierOpen(true)}
-            id="export-readiness-dossier-btn"
-          >
-            <FileText size={16} /> Export Placement Dossier
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-secondary flex items-center gap-1.5"
+              onClick={loadData}
+              disabled={loading}
+              title="Recalculate metrics across quizzes, coding labs, and target company stack"
+            >
+              <RefreshCw size={14} className={loading ? 'spinner' : ''} /> Recalculate
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary btn-glow flex items-center gap-2"
+              onClick={() => setDossierOpen(true)}
+              id="export-readiness-dossier-btn"
+            >
+              <FileText size={16} /> Export Placement Dossier
+            </button>
+          </div>
         </div>
 
         <div className="readiness-grid">
@@ -106,19 +117,19 @@ export default function ReadinessPage() {
 
               {/* Breakdown Bars */}
               <div className="w-full mt-3 text-left">
-                <div className="mb-2.5">
+                <div className="mb-2">
                   <div className="breakdown-row">
-                    <span className="text-muted">Curriculum Mastery (30%)</span>
+                    <span className="text-muted">Curriculum Mastery (20%)</span>
                     <strong>{metrics?.curriculum_completion_score || 0}%</strong>
                   </div>
                   <div className="progress-bar-track" style={{ height: 6 }}>
-                    <div className="progress-bar-fill" style={{ width: `${metrics?.curriculum_completion_score || 0}%` }} />
+                    <div className="progress-bar-fill" style={{ width: `${metrics?.curriculum_completion_score || 0}%`, background: 'var(--clr-indigo-500)' }} />
                   </div>
                 </div>
 
-                <div className="mb-2.5">
+                <div className="mb-2">
                   <div className="breakdown-row">
-                    <span className="text-muted">Quiz Validation (30%)</span>
+                    <span className="text-muted">Quiz Validation (25%)</span>
                     <strong>{metrics?.quiz_mastery_score || 0}%</strong>
                   </div>
                   <div className="progress-bar-track" style={{ height: 6 }}>
@@ -126,13 +137,23 @@ export default function ReadinessPage() {
                   </div>
                 </div>
 
-                <div className="mb-1">
+                <div className="mb-2">
                   <div className="breakdown-row">
-                    <span className="text-muted">Coding Challenges (40%)</span>
+                    <span className="text-muted">Coding Challenges (25%)</span>
                     <strong>{metrics?.coding_score || 0}%</strong>
                   </div>
                   <div className="progress-bar-track" style={{ height: 6 }}>
                     <div className="progress-bar-fill" style={{ width: `${metrics?.coding_score || 0}%`, background: 'var(--clr-emerald-500)' }} />
+                  </div>
+                </div>
+
+                <div className="mb-1">
+                  <div className="breakdown-row">
+                    <span className="text-muted">Company Stack Match (30%)</span>
+                    <strong className="text-primary">{metrics?.company_match_percentage ?? 0}%</strong>
+                  </div>
+                  <div className="progress-bar-track" style={{ height: 6 }}>
+                    <div className="progress-bar-fill" style={{ width: `${metrics?.company_match_percentage ?? 0}%`, background: 'linear-gradient(90deg, #6366f1, #a855f7)' }} />
                   </div>
                 </div>
               </div>
@@ -158,47 +179,64 @@ export default function ReadinessPage() {
             <div className="card-3d animate-fade-up delay-100">
               <div className="flex justify-between items-center mb-1">
                 <h3 className="text-sm font-bold flex items-center gap-2">
-                  <Building2 size={16} className="text-indigo-500" /> Target Company Curriculum Bias
+                  <Building2 size={16} className="text-indigo-500" /> Target Company Calibration
                 </h3>
                 {applying && (
-                  <span className="text-xs text-muted flex items-center gap-1">
-                    <RefreshCw size={12} className="spinner" /> Calibrating...
+                  <span className="text-xs text-indigo-400 flex items-center gap-1">
+                    <RefreshCw size={12} className="spinner" /> Aligning Curriculum...
                   </span>
                 )}
               </div>
               <p className="text-xs text-muted">
-                Select your dream target. The AI engine will dynamically calibrate your curriculum roadmap to emphasize their specific hiring tech stack.
+                Select your target company. The AI engine recalculates your benchmark score (Tier-1: 90%, AI Startups: 80%, Service: 70%) and immediately updates your skill gaps.
               </p>
 
               <div className="company-card-grid">
-                {companies.map(comp => (
-                  <div
-                    key={comp.id}
-                    className={`company-select-card ${selectedCompanyId === comp.id ? 'active' : ''}`}
-                    onClick={() => handleSelectCompany(comp.id)}
-                  >
-                    <div className="flex justify-between items-start">
-                      <strong className="text-xs text-primary">{comp.company_name}</strong>
-                      <span className={`badge text-xs ${comp.difficulty_level === 'Hard' ? 'badge-rose' : 'badge-amber'}`}>
-                        {comp.difficulty_level}
-                      </span>
+                {companies.map(comp => {
+                  const isSelected = selectedCompanyId === comp.id;
+                  return (
+                    <div
+                      key={comp.id}
+                      className={`company-select-card ${isSelected ? 'active' : ''}`}
+                      onClick={() => handleSelectCompany(comp.id)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <strong className="text-xs text-primary">{comp.company_name}</strong>
+                        <span className={`badge text-xs ${comp.difficulty_level === 'Hard' ? 'badge-rose' : 'badge-amber'}`}>
+                          {comp.difficulty_level}
+                        </span>
+                      </div>
+                      <span className="text-xs text-muted">{comp.target_role}</span>
+                      {isSelected && (
+                        <div className="mt-1">
+                          <span className="badge badge-indigo text-xs" style={{ fontSize: '0.65rem', padding: '2px 6px' }}>
+                            ✓ Active Target
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    <span className="text-xs text-muted">{comp.target_role}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {/* Skill Gap Matrix */}
             <div className="card-3d animate-fade-up delay-200">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center flex-wrap gap-2">
                 <h3 className="text-sm font-bold flex items-center gap-2">
                   <Target size={16} className="text-indigo-500" /> Live Competency & Skill Gap Matrix
                 </h3>
-                <span className="text-xs text-muted">Target: {metrics?.target_company?.company_name || 'Industry Bar'}</span>
+                <div className="flex items-center gap-2">
+                  <span className="badge badge-outline text-xs">
+                    Target: {metrics?.target_company?.company_name || 'Industry Standard'}
+                  </span>
+                  <span className="badge badge-indigo text-xs">
+                    Benchmark: {metrics?.benchmark_target || 80}%
+                  </span>
+                </div>
               </div>
               <p className="text-xs text-muted mt-1 mb-2">
-                Real-time validation against the required tech stack. As you complete curriculum milestones and coding labs, gaps turn green.
+                Real-time validation aggregated from diagnostic evaluations, weekly quiz scores, resume skills, and coding labs.
               </p>
 
               <div className="skill-gap-list">
@@ -210,13 +248,13 @@ export default function ReadinessPage() {
                         <div
                           className="progress-bar-fill"
                           style={{
-                            width: `${item.current_level}%`,
+                            width: `${Math.min(100, item.current_level)}%`,
                             background: item.status === 'mastered' ? 'var(--clr-emerald-500)' : item.status === 'in_progress' ? 'var(--clr-indigo-500)' : 'var(--clr-amber-500)',
                           }}
                         />
                       </div>
-                      <span className="text-xs font-mono font-bold text-primary w-12 text-right">
-                        {item.current_level}%
+                      <span className="text-xs font-mono font-bold text-primary w-20 text-right">
+                        {item.current_level}% <span className="text-muted font-normal text-xs">/ {item.required_level || item.target_level || 80}%</span>
                       </span>
                     </div>
                     <span className={`badge text-xs ${item.status === 'mastered' ? 'badge-emerald' : item.status === 'in_progress' ? 'badge-indigo' : 'badge-amber'}`}>
