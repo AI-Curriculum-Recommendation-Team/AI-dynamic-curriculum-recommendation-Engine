@@ -30,6 +30,22 @@ def get_career_readiness_metrics(
     if not student:
         raise HTTPException(status_code=404, detail="Student profile not found")
 
+    # If user has not chosen a career goal yet, return an uncalibrated 0% state
+    if not student.career_goal_id:
+        # Also clean up any stale readiness record
+        db.query(CareerReadiness).filter(CareerReadiness.student_id == student.id).delete(synchronize_session=False)
+        db.commit()
+        return {
+            "overall_score": 0,
+            "curriculum_completion_score": 0.0,
+            "quiz_mastery_score": 0.0,
+            "coding_score": 0.0,
+            "company_match_percentage": 0,
+            "target_company": None,
+            "skill_gap_matrix": [],
+            "recommended_action": "Select your career goal in Stage 1 to calibrate your curriculum roadmap and real-time placement readiness benchmark.",
+        }
+
     # 1. Target Company Profile
     readiness = db.query(CareerReadiness).filter(CareerReadiness.student_id == student.id).first()
     target_company = None
@@ -75,15 +91,14 @@ def get_career_readiness_metrics(
     if quiz_scores_list:
         quiz_score = round(sum(quiz_scores_list) / len(quiz_scores_list), 1)
     else:
-        quiz_score = 65.0  # Baseline foundational competency
+        quiz_score = 0.0
 
     # 4. Coding Challenge Score
     coding_subs = db.query(CodingSubmission).filter(CodingSubmission.student_id == student.id).all()
     if coding_subs:
         coding_score = round(sum(s.score for s in coding_subs) / len(coding_subs), 1)
     else:
-        # If no submissions yet, derive from quiz mastery foundation
-        coding_score = round(quiz_score * 0.8, 1)
+        coding_score = 0.0
 
     # 5. Build Unified Dynamic Skill Map for Student
     unified_skills: Dict[str, float] = {}
@@ -128,17 +143,15 @@ def get_career_readiness_metrics(
             if sk_name in req_lower or req_lower in sk_name:
                 matched_level = max(matched_level, score)
 
-        if matched_level == 0.0:
-            # Baseline based on career quiz score
-            matched_level = round(quiz_score * 0.75, 1)
-
         # Status determined relative to company tier target
         if matched_level >= tier_target:
             status = "mastered"
         elif matched_level >= (tier_target * 0.65):
             status = "in_progress"
-        else:
+        elif matched_level > 0:
             status = "needs_focus"
+        else:
+            status = "not_started"
 
         gap_matrix.append({
             "skill": skill_req,
@@ -148,30 +161,38 @@ def get_career_readiness_metrics(
         })
         stack_match_percentages.append(min(100.0, (matched_level / tier_target) * 100))
 
-    company_stack_match = round(sum(stack_match_percentages) / max(len(stack_match_percentages), 1), 1)
+    if unified_skills:
+        company_stack_match = round(sum(stack_match_percentages) / max(len(stack_match_percentages), 1), 1)
+    else:
+        company_stack_match = 0.0
 
     # 7. Composite Overall Readiness Score
-    # Calibrated dynamically:
-    # 20% Curriculum Progress + 25% Quiz Mastery + 25% Coding Lab + 30% Company Stack Match
-    overall_score = round(
-        (completion_score * 0.20) +
-        (quiz_score * 0.25) +
-        (coding_score * 0.25) +
-        (company_stack_match * 0.30),
-        1
-    )
-
-    # Cap between 10 and 99
-    overall_score = min(99.0, max(15.0, overall_score))
+    has_activity = (completion_score > 0) or (quiz_score > 0) or (coding_score > 0) or (company_stack_match > 0)
+    if has_activity:
+        overall_score = round(
+            (completion_score * 0.20) +
+            (quiz_score * 0.25) +
+            (coding_score * 0.25) +
+            (company_stack_match * 0.30),
+            1
+        )
+        overall_score = min(99.0, max(5.0, overall_score))
+    else:
+        overall_score = 0.0
 
     # 8. Actionable Recommendation
     co_name = target_company.company_name if target_company else "Target Companies"
-    if overall_score >= 82:
+    if not curriculum:
+        career_title = student.career_goal.title if student.career_goal else "your chosen path"
+        recommendation = f"Take your diagnostic skill assessment and generate your syllabus for {career_title} to calibrate your placement readiness index."
+    elif overall_score >= 82:
         recommendation = f"Exceptional alignment for {co_name} ({target_company.target_role})! You meet the {tier_target}% hiring benchmark across core stack competencies. Focus on system design trade-offs and timed coding labs."
     elif overall_score >= 60:
         recommendation = f"Solid progression toward {co_name}. Focus on strengthening '{gap_matrix[0]['skill'] if gap_matrix else 'core topics'}' in upcoming weekly labs to bridge the gap to the {tier_target}% hiring threshold."
-    else:
+    elif overall_score > 0:
         recommendation = f"Actively calibrating foundation for {co_name}. Complete your active week coding challenge and weekly quiz to raise your composite readiness."
+    else:
+        recommendation = f"Ready to begin! Complete Week 1 modules, quizzes, and coding challenges to start building your placement readiness score for {co_name}."
 
     # Update or insert readiness record
     if not readiness:
@@ -213,3 +234,4 @@ def get_career_readiness_metrics(
         "skill_gap_matrix": gap_matrix,
         "recommended_action": recommendation,
     }
+

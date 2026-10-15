@@ -284,9 +284,13 @@ export default function DashboardPage() {
               <div className="v4-readiness-title-text">
                 <div className="v4-readiness-badges">
                   <span className="badge badge-indigo text-xs">Placement Readiness</span>
-                  {readinessMetrics?.target_company && (
+                  {readinessMetrics?.target_company ? (
                     <span className="badge badge-emerald text-xs flex items-center gap-1">
                       <Building2 size={12} /> {readinessMetrics.target_company.company_name} ({readinessMetrics.target_company.tier})
+                    </span>
+                  ) : (
+                    <span className="badge badge-amber text-xs flex items-center gap-1">
+                      <Building2 size={12} /> Uncalibrated
                     </span>
                   )}
                   {resumeProfile?.has_resume && (
@@ -296,24 +300,32 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <h3>
-                  Target Role: {student?.career_goal?.title || 'Software Engineering'} Placement Index
+                  Target Role: {student?.career_goal?.title ? `${student.career_goal.title} Placement Index` : 'Career Goal Not Selected Yet'}
                 </h3>
               </div>
             </div>
 
             <div className="v4-readiness-actions">
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm flex items-center gap-1.5"
-                onClick={() => setCertModalOpen(true)}
-                id="open-cert-modal-btn"
-                title="Generate your AI verified Curriculum & Placement Readiness Certificate"
-              >
-                <Award size={14} className="text-amber-400" /> View Placement Certificate
-              </button>
-              <Link to="/readiness" className="btn btn-primary btn-sm flex items-center gap-1.5">
-                <Target size={14} /> Full Skill Gap Matrix
-              </Link>
+              {hasCurriculum ? (
+                <>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm flex items-center gap-1.5"
+                    onClick={() => setCertModalOpen(true)}
+                    id="open-cert-modal-btn"
+                    title="Generate your AI verified Curriculum & Placement Readiness Certificate"
+                  >
+                    <Award size={14} className="text-amber-400" /> View Placement Certificate
+                  </button>
+                  <Link to="/readiness" className="btn btn-primary btn-sm flex items-center gap-1.5">
+                    <Target size={14} /> Full Skill Gap Matrix
+                  </Link>
+                </>
+              ) : (
+                <Link to="/career" className="btn btn-primary btn-sm flex items-center gap-1.5 btn-glow">
+                  <Target size={14} /> Choose Career Goal to Calibrate
+                </Link>
+              )}
             </div>
           </div>
 
@@ -322,13 +334,22 @@ export default function DashboardPage() {
             <div className="v4-readiness-box v4-readiness-score-box">
               <div className="v4-score-circular-badge">
                 <div className="v4-score-number">
-                  {readinessMetrics?.overall_score ?? 80}%
+                  {readinessMetrics?.overall_score ?? 0}%
                 </div>
                 <div className="v4-score-caption">Placement Index</div>
               </div>
               <div className="v4-score-explainer">
-                Target Benchmark: <strong className="text-primary">{readinessMetrics?.benchmark_target ?? 80}%</strong>.<br />
-                Calibrated to <strong>{readinessMetrics?.target_company?.company_name || 'Tier-1 Standards'}</strong>.
+                {student?.career_goal?.title ? (
+                  <>
+                    Target Benchmark: <strong className="text-primary">{readinessMetrics?.benchmark_target ?? readinessMetrics?.target_company?.benchmark_target ?? 80}%</strong>.<br />
+                    Calibrated to <strong>{readinessMetrics?.target_company?.company_name || 'Tier-1 Standards'}</strong>.
+                  </>
+                ) : (
+                  <>
+                    <strong className="text-amber-500">Awaiting Calibration</strong>.<br />
+                    Select your Career Goal to set your hiring benchmark.
+                  </>
+                )}
               </div>
             </div>
 
@@ -378,21 +399,37 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Box 4: Quick Coding Lab CTA */}
+            {/* Box 4: Quick Action CTA */}
             <div className="v4-readiness-box v4-cta-card">
               <div>
                 <div className="v4-cta-title">
-                  <Code2 size={16} className="text-indigo-400" />
-                  <span>Hands-On Coding Lab</span>
+                  {hasCurriculum ? (
+                    <>
+                      <Code2 size={16} className="text-indigo-400" />
+                      <span>Hands-On Coding Lab</span>
+                    </>
+                  ) : (
+                    <>
+                      <Target size={16} className="text-indigo-400" />
+                      <span>{nextAction.title.split(':')[0]}</span>
+                    </>
+                  )}
                 </div>
                 <p className="v4-cta-desc mt-1">
-                  Practice topic algorithms with unit tests & AI complexity analysis.
+                  {hasCurriculum
+                    ? 'Practice topic algorithms with unit tests & AI complexity analysis.'
+                    : nextAction.desc}
                 </p>
               </div>
-              <Link to="/coding-lab" className="btn btn-secondary btn-sm flex items-center justify-center gap-1.5 w-full mt-2">
-                Launch Coding Lab <ArrowRight size={13} />
+              <Link to={hasCurriculum ? '/coding-lab' : nextAction.href} className="btn btn-secondary btn-sm flex items-center justify-center gap-1.5 w-full mt-2">
+                {hasCurriculum ? (
+                  <>Launch Coding Lab <ArrowRight size={13} /></>
+                ) : (
+                  <>{nextAction.buttonText} <ArrowRight size={13} /></>
+                )}
               </Link>
             </div>
+
           </div>
         </div>
 
