@@ -82,9 +82,13 @@ def delete_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    from app.services.user_service import delete_user_completely
-    delete_user_completely(user_id, db)
-    return {"message": "User deleted successfully", "user_id": user_id}
+    try:
+        from app.services.user_service import delete_user_completely
+        delete_user_completely(user_id, db)
+        return {"message": "User deleted successfully", "user_id": user_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete user: {str(e)}")
+
 
 
 @router.get("/stats", response_model=PlatformStats)
